@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../AuthContext/AuthContext.js";
 
-// Login Page
 function Login({onLogin}) {
+    const { loggedUser } = useContext(AuthContext);
     const navigate = useNavigate();
     const { usernameToLogin } = useParams();
     
@@ -32,6 +33,9 @@ function Login({onLogin}) {
       }
     };
 
+    useEffect(() => {
+      loggedUser && navigate("/");
+    }, []);
 
     return (
       <div className="flex flex-col items-center mt-9 bg-gray-200">

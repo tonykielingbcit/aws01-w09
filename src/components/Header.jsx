@@ -36,6 +36,12 @@ export default function Header() {
             >
                 ResetPass
             </NavLink>
+            <NavLink
+                to="/logout"
+                className="p-2 font-bold rounded-md hover:bg-green-400 hover:text-amber-600"
+            >
+                Log Out
+            </NavLink>
         </div>
 
         <div className="flex justify-end pr-6 items-center">

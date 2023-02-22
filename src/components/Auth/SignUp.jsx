@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../AuthContext/AuthContext.js";
 
 // Signup Page
 function Signup({ onSubmit }) {
+  const { loggedUser } = useContext(AuthContext);
   const navigate = useNavigate();
   // console.log("onSubmit:: ", onSubmit.toString())
     const [user, setUser] = useState({username: "tk", email: "tk@tk.ca", password: "", confirmPassword: ""});
@@ -35,7 +37,9 @@ function Signup({ onSubmit }) {
       }
     };
 
-    // useEffect(() => console.log("user::: ", user), [user]);
+    useEffect(() => {
+      loggedUser && navigate("/");
+    }, []);
 
     return (
       <div className="flex flex-col items-center h-full mt-9 bg-gray-200">

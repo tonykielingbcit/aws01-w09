@@ -8,9 +8,15 @@ import PageError from "./PageError.jsx";
 import ConfirmEmail from "./Auth/ConfirmEmail.jsx";
 import ForgotPassword from "./Auth/ForgotPassword.jsx";
 import ResetPassword from "./Auth/ResetPassword.jsx";
+import Logout from "./Auth/Logout.jsx";
+
+import { AuthContext } from "../AuthContext/AuthContext.js";
 import * as cognito from "../helpers/cognito.js";
+import { useEffect, useState } from "react";
 
 function AppRouter() {
+  const [loggedUser, setLoggedUSer] = useState("");
+
   const handleSignup = async ({ username, email, password }) => {
     try {
       await cognito.signUp({ username, email, password });
@@ -35,12 +41,26 @@ function AppRouter() {
     try {
       const doingLogin = await cognito.signIn({ username, password });
       console.log("doingLogin===== ", doingLogin)
+      setUser(username);
       return ({ message: "ok"});
     } catch (err) {
       console.error(`###ERROR: ${err.message || err }`);
       return ({ error: "Login Failed. Please try again." });
     }
   }
+
+  const logout = async () => {
+    setLoggedUSer("");
+    cognito.signOut();
+  };
+
+  useEffect(() => {
+console.log("USEEFFECT IN APPROUTER!!!!!!!!!!!!!!!")
+    const currentUser = cognito.getCurrentUser();
+    console.log("current user::::: ", currentUser);
+    if (currentUser?.username)
+      setLoggedUSer(currentUser.username);
+  }, []);
 
 
   const router = createBrowserRouter([
@@ -56,13 +76,16 @@ function AppRouter() {
         { path: "/confirm-email/:usernameToConfirm", element: <ConfirmEmail onConfirm={confirmUser} /> },
         { path: "/forgot-password", element: <ForgotPassword /> },
         { path: "/reset-password", element: <ResetPassword /> },
+        { path: "/logout", element: <Logout onLogout={logout}/> },
         { path: "*", element: <PageError />},
       ],
     },
   ]);
 
   return (
-    <RouterProvider router={router} />
+    <AuthContext.Provider value={{ loggedUser }}>
+      <RouterProvider router={router} />
+    </AuthContext.Provider>
   );
 }
 
