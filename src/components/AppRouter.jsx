@@ -17,10 +17,8 @@ import * as cognito from "../helpers/cognito.js";
 // import * as jwt from "../helpers/handleLocalStorage.js";
 
 function AppRouter() {
-  // const [loggedUser, setLoggedUser] = useState("");
   const [loggedUser, setLoggedUser] = useState("");
-  // const [loggedUserEmail, setLoggedUserEmail] = useState("");
-
+  
   const handleSignup = async ({ username, email, password }) => {
     try {
       await cognito.signUp({ username, email, password });
@@ -93,12 +91,9 @@ function AppRouter() {
     // is checks whether the user is logged when they refresh the browser
     (async() => {
       const isUserLogged = await cognito.getUserSession();
-      // console.log("tk", isUserLogged)
       
-      if (isUserLogged.error) {
-        // console.log("User is not logged!");
+      if (isUserLogged.error)
         return;
-      }
 
       const { idToken: { payload } } = isUserLogged;
       const { email } = payload;
@@ -110,29 +105,8 @@ function AppRouter() {
       });
     })();
 
-    /*
-    (() => {
-          // Retrieve the user attributes
-          currentUser.getUserAttributes(function(err, result) {
-            if (err) {
-              return console.log("#########ERROR: ", err);
-            }
-
-            // Loop through the attributes and look for the email
-            for (var i = 0; i < result.length; i++) {
-                if (result[i].getIName() === 'email') {
-                    console.log('Email address: ' + result[i].getValue());
-                }
-            }
-          });
-    })()
-    */
-      // setLoggedUser(currentUser.username);
-      // setLoggedUserEmail(currentUser.username);
   }, []);
 
-
-  // useEffect(() => console.log("loggedUSER::: ", loggedUser), [loggedUser]);
 
   const router = createBrowserRouter([
     {
@@ -157,7 +131,6 @@ function AppRouter() {
   ]);
 
   return (
-    // <AuthContext.Provider value={{ loggedUser, loggedUserEmail }}>
     <AuthContext.Provider value={ loggedUser }>
       <RouterProvider router={router} />
     </AuthContext.Provider>

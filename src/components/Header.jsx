@@ -14,25 +14,17 @@ export default function Header() {
                     to="/"
                     className={`menu-item ${
                     currentLocation === "/" ? "is-active" : ""
-                    } p-2 font-bold rounded-md hover:bg-green-400 hover:text-amber-600`}
+                    } p-2 font-bold rounded-md hover:bg-green-300 hover:text-blue-800`}
                 >
                     Home
                 </NavLink>
-                {/* <NavLink
-                    to="/login"
-                    className={`menu-item ${
-                    currentLocation === "/" ? "is-active" : ""
-                    } p-2 font-bold rounded-md hover:bg-green-400 hover:text-amber-600`}
-                >
-                    Login
-                </NavLink> */}
 
                 { loggedUser &&
                     <NavLink
                         to="/user-detail"
                         className={`menu-item ${
                         currentLocation === "/" ? "is-active" : ""
-                        } p-2 font-bold rounded-md hover:bg-green-400 hover:text-amber-600`}
+                        } p-2 font-bold rounded-md hover:bg-green-300 hover:text-blue-800`}
                     >
                         User
                     </NavLink>
@@ -75,7 +67,7 @@ export default function Header() {
                             to="/login"
                             className={`menu-item ${
                             currentLocation === "/" ? "is-active" : ""
-                            } p-2 font-bold rounded-md hover:bg-green-400 hover:text-amber-600`}
+                            } p-2 font-bold rounded-md hover:bg-green-300 hover:text-blue-800`}
                         >
                             Login
                         </NavLink>
@@ -84,7 +76,7 @@ export default function Header() {
                             to="/signup"
                             className={`menu-item ${
                                 currentLocation === "/about" ? "is-active" : ""
-                            } p-2 font-bold rounded-md hover:bg-green-400 hover:text-amber-600`}
+                            } p-2 font-bold rounded-md hover:bg-green-300 hover:text-blue-800`}
                             >
                             SignUp
                         </NavLink>
@@ -92,7 +84,7 @@ export default function Header() {
                 :
                     <NavLink
                         to="/logout"
-                        className="p-2 font-bold rounded-md hover:bg-green-400 hover:text-amber-600"
+                        className="p-2 font-bold rounded-md hover:bg-green-300 hover:text-blue-800"
                     >
                         Log Out
                     </NavLink>
