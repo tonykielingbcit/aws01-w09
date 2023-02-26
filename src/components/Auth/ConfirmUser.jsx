@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 
-function ConfirmEmail({ onConfirm }) {
+function ConfirmUser({ onConfirm }) {
     const { usernameToConfirm } = useParams();
   
     const [user, setUser] = useState({ username: usernameToConfirm || "", code: ""});
@@ -70,4 +70,4 @@ function ConfirmEmail({ onConfirm }) {
     );
   }
   
-  export default ConfirmEmail;
+  export default ConfirmUser;

@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { AuthContext } from "../AuthContext/AuthContext.js";
 
 export default function Home() {
-    const { loggedUser } = useContext(AuthContext);
+    const loggedUser = useContext(AuthContext);
 // console.log("HOMEEEEEEEEEE, USER: ", user);
     // useEffect(() => {
 
@@ -11,7 +11,7 @@ export default function Home() {
     return(
         <div className="flex flex-col items-center mt-9 bg-gray-200">
             <div className="bg-white shadow-md rounded px-24 pt-6 pb-8 mb-4">
-                <h3 className="mt-4 text-center mb-10 font-bold">Hi {loggedUser || "There"} :(</h3>
+                <h3 className="mt-4 text-center mb-10 font-bold">Hi {loggedUser.username || "There"} ;)</h3>
                 {loggedUser
                     ?
                         <div>

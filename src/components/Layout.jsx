@@ -8,7 +8,8 @@ function Layout() {
     <div className="h-screen flex flex-col flex-grow bg-gray-200">
       <Header />
 
-      <main className="flex h-full m-auto">
+      {/* <main className="flex h-full m-auto"> */}
+      <main className="flex h-full justify-center">
         <Outlet />
       </main>
 

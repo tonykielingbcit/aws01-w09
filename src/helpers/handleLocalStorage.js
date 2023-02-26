@@ -5,12 +5,19 @@
 // const recordToken = token => window.localStorage.setItem("tokenUserSys", token);
 
 // const removeToken = () => window.localStorage.removeItem("tokenUserSys");
+import jwt_decode from "jwt-decode";
 
-const getToken = () => window.localStorage.getItem("CognitoIdentityServiceProvider.7dpks4mp0kpquke6anb9269vkp.tk.accessToken");
+const getUserData = token => {
+    // const token = window.localStorage.getItem("CognitoUserSession2.idToken.jwtToken");
+    console.log("tokennnnnn--- ", token);
+    const decodedToken = jwt_decode(token);
+    console.log("decodeddddd --- ", decodedToken);
+};
 
 
 export {
-    recordToken,
-    removeToken,
-    getToken
+    // recordToken,
+    // removeToken,
+    // getToken
+    getUserData
 };

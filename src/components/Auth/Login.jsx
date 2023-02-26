@@ -2,12 +2,24 @@ import { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../AuthContext/AuthContext.js";
 
-function Login({onLogin}) {
-    const { loggedUser } = useContext(AuthContext);
+function Login({ onLogin }) {
+    const loggedUser = useContext(AuthContext);
     const navigate = useNavigate();
-    const { usernameToLogin } = useParams();
+
+    if (loggedUser) navigate("/");
+    // useEffect(() => {
+    //   console.log("loggedUser---login---", loggedUser)
+    //   loggedUser && navigate("/");
+    // }, []);
+
+    const { userToLogin, userToReset, messageReset } = useParams();
+    // console.log("LOGIN::::::::::;;; ", "usernameToReset ", userToReset, "usernameToLogin ", userToLogin, "messageReset ", messageReset)
     
-    const [user, setUser] = useState({ username: usernameToLogin || "", password: ""});
+    const messageResetSuccess = (messageReset && messageReset === "tkOK") ? "Password has been changed successfully! \\o/" : false;
+
+    // const [user, setUser] = useState({ username: "", password: ""});
+    // const [user, setUser] = useState({ username: userToLogin || "tk", password: "P@ssw0rd1"});
+    const [user, setUser] = useState({ username: userToLogin || userToReset || "", password: ""});
     const [missing, setMissing] = useState({username: false, password: false});
     const [message, setMessage] = useState("");
 
@@ -15,15 +27,17 @@ function Login({onLogin}) {
       event.preventDefault();
       
       const {username, password } = user;
-      // console.log("asd: ", username, password)
 
       if (!username || !password) {
         setMissing({...missing,
           username: !username,
           password: !password
         });
+        setMessage("Missing data.")
         return;
       }
+
+      setMessage("Processing...");
 
       const proceedLogin = await onLogin({ username, password });
       if (proceedLogin.message)
@@ -33,22 +47,26 @@ function Login({onLogin}) {
       }
     };
 
-    useEffect(() => {
-      loggedUser && navigate("/");
-    }, []);
 
     return (
       <div className="flex flex-col items-center mt-9 bg-gray-200">
         <h1 className="text-4xl font-semibold text-gray-800 mb-3">Login</h1>
+        {messageResetSuccess &&
+          <div className=" m-2 mb-4 border border-green-700 bg-green-300 text-blue-700 text-xl font-bold p-3 rounded">
+            {messageResetSuccess}
+          </div>
+        }
+        <div className="bg-white shadow-md rounded px-8 pt-6 pb-3 mb-2">
         <form className="w-full max-w-xs">
-          <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+          {/* <div className="bg-white shadow-md rounded px-8 pt-6 pb-3 mb-2"> */}
+          <div>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
                   Username
               </label>
               <input className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight 
                 focus:outline-none focus:shadow-outline ${missing.username ? "border-red-500" : ""}`}
-                    id="username" type="text" placeholder="Username" value={user.username} autoFocus
+                    id="username" type="text" placeholder="Username" value={user.username} name="username" autoFocus
                     onChange={e => setUser({...user, username: e.target.value})} />
             </div>
             <div className="mb-4">
@@ -57,8 +75,11 @@ function Login({onLogin}) {
               </label>
               <input className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight 
                 focus:outline-none focus:shadow-outline ${missing.password ? "border-red-500" : ""}`}
-                    id="code" type="password" placeholder="Password" value={user.password}
-                    onChange={e => setUser({...user, password: e.target.value})}/>
+                    id="code" type="password" placeholder="Password" value={user.password} name="password"
+                    onChange={e => setUser({...user, password: e.target.value})}
+                    // onKeyDown={e => console.log("e.key= ", e.key)}
+                    onKeyDown={e => e.key === "Enter" && handleSubmit(e)}
+                    />
             </div>
 
             {message ? <p className="text-red-500 text-xs italic mb-4">{ message }</p> : ""}
@@ -71,6 +92,12 @@ function Login({onLogin}) {
             </div>
           </div>
         </form>
+        <div className="mt-5">
+          <span className="p-1 text-xs hover:text-blue-900 hover:bg-green-300 hover:rounded hover:font-bold">
+            <button onClick={() => navigate("/forgot-password")}>Forgot Password?</button>
+          </span>
+        </div>
+        </div>
       </div>
     );
   }

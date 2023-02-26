@@ -4,9 +4,11 @@ import { AuthContext } from "../../AuthContext/AuthContext.js";
 
 // Signup Page
 function Signup({ onSubmit }) {
-  const { loggedUser } = useContext(AuthContext);
-  const navigate = useNavigate();
-  // console.log("onSubmit:: ", onSubmit.toString())
+    const loggedUser = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    if (loggedUser) navigate("/");
+    
     const [user, setUser] = useState({username: "tk", email: "tk@tk.ca", password: "", confirmPassword: ""});
     const [missing, setMissing] = useState({username: false, email: false, password: false, confirmPassword: false});
     const [message, setMessage] = useState("");
@@ -29,6 +31,8 @@ function Signup({ onSubmit }) {
       if (password !== confirmPassword)
         return setMessage("Password and Confirm Password MUST match!");
 
+      setMessage("Processing...");
+
       const signup = await onSubmit({ username, email, password });
       if (signup.message)
         navigate(`/confirm-email/${username}`);
@@ -45,7 +49,7 @@ function Signup({ onSubmit }) {
       <div className="flex flex-col items-center h-full mt-9 bg-gray-200">
         <h1 className="text-4xl font-semibold text-gray-800 mb-3">Signup Page</h1>
         <form className="w-full max-w-xs">
-          <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+          <div className="bg-white shadow-md rounded px-8 pt-6 pb-3 mb-2">
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
                 Username
@@ -90,6 +94,11 @@ function Signup({ onSubmit }) {
                 type="button" onClick={handleSubmit}>
                 Sign Up
               </button>
+            </div>
+            <div className="mt-5">
+              <span className="p-1 text-xs hover:text-blue-900 hover:bg-green-300 hover:rounded hover:font-bold">
+                <button onClick={() => navigate("/login")}>Already Registered?</button>
+              </span>
             </div>
           </div>
         </form>

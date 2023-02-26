@@ -25,11 +25,12 @@ const poolData = {
 
 const userPool = new CognitoUserPool(poolData)
 
-async function getUserSession() {
+
+export async function getUserSession() {
   const user = getCurrentUser()
   if (!user) {
-    throw "User not logged in"
-    return
+    // throw "User not logged in"
+    return ({ error: "User not logged "});
   }
   const getSession = promisify(user.getSession).bind(user)
 

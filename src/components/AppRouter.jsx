@@ -5,17 +5,21 @@ import Signup from "./Auth/SignUp.jsx";
 import Login from "./Auth/Login.jsx";
 import Home from "./Home.jsx";
 import PageError from "./PageError.jsx";
-import ConfirmEmail from "./Auth/ConfirmEmail.jsx";
+import ConfirmUser from "./Auth/ConfirmUser.jsx";
 import ForgotPassword from "./Auth/ForgotPassword.jsx";
 import ResetPassword from "./Auth/ResetPassword.jsx";
 import Logout from "./Auth/Logout.jsx";
+import UserDetails from "./UserDetails.jsx";
 
 import { AuthContext } from "../AuthContext/AuthContext.js";
-import * as cognito from "../helpers/cognito.js";
 import { useEffect, useState } from "react";
+import * as cognito from "../helpers/cognito.js";
+// import * as jwt from "../helpers/handleLocalStorage.js";
 
 function AppRouter() {
-  const [loggedUser, setLoggedUSer] = useState("");
+  // const [loggedUser, setLoggedUser] = useState("");
+  const [loggedUser, setLoggedUser] = useState("");
+  // const [loggedUserEmail, setLoggedUserEmail] = useState("");
 
   const handleSignup = async ({ username, email, password }) => {
     try {
@@ -39,9 +43,14 @@ function AppRouter() {
 
   const handleLogin = async ({ username, password }) => {
     try {
-      const doingLogin = await cognito.signIn({ username, password });
-      console.log("doingLogin===== ", doingLogin)
-      setUser(username);
+      const { idToken: { payload } } = await cognito.signIn({ username, password });
+      const { email } = payload;
+      const tempUser = payload["cognito:username"];
+
+      setLoggedUser({
+        username: tempUser,
+        email
+      });
       return ({ message: "ok"});
     } catch (err) {
       console.error(`###ERROR: ${err.message || err }`);
@@ -49,19 +58,80 @@ function AppRouter() {
     }
   }
 
+  const forgotPassword = async ({ username }) => {
+    try {
+      console.log("forgotPasswd======== username:::: ", username)
+      const forgotPasswd = await cognito.forgotPassword({ username });
+      console.log("forgotPasswd======== ", forgotPasswd)
+
+      return ({ message: "OK" });
+    } catch(err) {
+      console.error(`###ERROR: ${err.message || err }`);
+      return ({ error: "Forgot Password Failed. Please try again." });
+    }
+  };
+
+  const resetPassword = async ({ username, code, newPassword }) => {
+    try {
+      const forgotPasswd = await cognito.resetPassword({ username, code, newPassword });
+      console.log("forgotPasswd======== ", forgotPasswd)
+      return ({ message: "tKOK" });
+    } catch(err) {
+      console.error(`###ERROR: ${err.message || err }`);
+      return ({ error: "Forgot Password Failed. Please try again." });
+    }
+  };
+
   const logout = async () => {
-    setLoggedUSer("");
+    setLoggedUser("");
     cognito.signOut();
   };
 
+
   useEffect(() => {
-console.log("USEEFFECT IN APPROUTER!!!!!!!!!!!!!!!")
-    const currentUser = cognito.getCurrentUser();
-    console.log("current user::::: ", currentUser);
-    if (currentUser?.username)
-      setLoggedUSer(currentUser.username);
+    // is checks whether the user is logged when they refresh the browser
+    (async() => {
+      const isUserLogged = await cognito.getUserSession();
+      console.log("tk", isUserLogged)
+      
+      if (isUserLogged.error) {
+        // console.log("User is not logged!");
+        return;
+      }
+
+      const { idToken: { payload } } = isUserLogged;
+      const { email } = payload;
+      const tempUser = payload["cognito:username"];
+
+      setLoggedUser({
+        username: tempUser,
+        email
+      });
+    })();
+
+    /*
+    (() => {
+          // Retrieve the user attributes
+          currentUser.getUserAttributes(function(err, result) {
+            if (err) {
+              return console.log("#########ERROR: ", err);
+            }
+
+            // Loop through the attributes and look for the email
+            for (var i = 0; i < result.length; i++) {
+                if (result[i].getIName() === 'email') {
+                    console.log('Email address: ' + result[i].getValue());
+                }
+            }
+          });
+    })()
+    */
+      // setLoggedUser(currentUser.username);
+      // setLoggedUserEmail(currentUser.username);
   }, []);
 
+
+  useEffect(() => console.log("loggedUSER::: ", loggedUser), [loggedUser]);
 
   const router = createBrowserRouter([
     {
@@ -72,10 +142,13 @@ console.log("USEEFFECT IN APPROUTER!!!!!!!!!!!!!!!")
         { path: "/signup", element: <Signup onSubmit={handleSignup} /> },
         { path: "/login", element: <Login onLogin={handleLogin} />},
         { path: "/login/:userToLogin", element: <Login onLogin={handleLogin}/>},
-        { path: "/confirm-email/", element: <ConfirmEmail onConfirm={confirmUser} /> },
-        { path: "/confirm-email/:usernameToConfirm", element: <ConfirmEmail onConfirm={confirmUser} /> },
-        { path: "/forgot-password", element: <ForgotPassword /> },
+        { path: "/login/:userToReset/:messageReset", element: <Login onLogin={handleLogin}/>},
+        { path: "/confirm-email", element: <ConfirmUser onConfirm={confirmUser} /> },
+        { path: "/confirm-email/:usernameToConfirm", element: <ConfirmUser onConfirm={confirmUser} /> },
+        { path: "/user-detail", element: <UserDetails /> },
+        { path: "/forgot-password", element: <ForgotPassword onForgotPassword={forgotPassword} /> },
         { path: "/reset-password", element: <ResetPassword /> },
+        { path: "/reset-password/:userToReset", element: <ResetPassword onResetPassword={resetPassword} /> },
         { path: "/logout", element: <Logout onLogout={logout}/> },
         { path: "*", element: <PageError />},
       ],
@@ -83,7 +156,8 @@ console.log("USEEFFECT IN APPROUTER!!!!!!!!!!!!!!!")
   ]);
 
   return (
-    <AuthContext.Provider value={{ loggedUser }}>
+    // <AuthContext.Provider value={{ loggedUser, loggedUserEmail }}>
+    <AuthContext.Provider value={ loggedUser }>
       <RouterProvider router={router} />
     </AuthContext.Provider>
   );
