@@ -34,7 +34,7 @@ function AppRouter() {
   const confirmUser = async ({ username, code }) => {
     try {
       await cognito.confirmUser({ username, code });
-      return ({ message: "ok", username });
+      return ({ message: "userCreatedOK", username });
     } catch (err) {
       console.error(`###ERROR: ${err.message || err }`);
       return ({ error: "Issues on Confirm Email. Please try again." });
@@ -60,9 +60,9 @@ function AppRouter() {
 
   const forgotPassword = async ({ username }) => {
     try {
-      console.log("forgotPasswd======== username:::: ", username)
+      // console.log("forgotPasswd======== username:::: ", username)
       const forgotPasswd = await cognito.forgotPassword({ username });
-      console.log("forgotPasswd======== ", forgotPasswd)
+      // console.log("forgotPasswd======== ", forgotPasswd)
 
       return ({ message: "OK" });
     } catch(err) {
@@ -74,8 +74,9 @@ function AppRouter() {
   const resetPassword = async ({ username, code, newPassword }) => {
     try {
       const forgotPasswd = await cognito.resetPassword({ username, code, newPassword });
-      console.log("forgotPasswd======== ", forgotPasswd)
-      return ({ message: "tKOK" });
+      // console.log("forgotPasswd======== ", forgotPasswd)
+      // this message is like a code for the successfull reset password message be displayed
+      return ({ message: "tkOKReset" });
     } catch(err) {
       console.error(`###ERROR: ${err.message || err }`);
       return ({ error: "Forgot Password Failed. Please try again." });
@@ -92,7 +93,7 @@ function AppRouter() {
     // is checks whether the user is logged when they refresh the browser
     (async() => {
       const isUserLogged = await cognito.getUserSession();
-      console.log("tk", isUserLogged)
+      // console.log("tk", isUserLogged)
       
       if (isUserLogged.error) {
         // console.log("User is not logged!");
@@ -131,7 +132,7 @@ function AppRouter() {
   }, []);
 
 
-  useEffect(() => console.log("loggedUSER::: ", loggedUser), [loggedUser]);
+  // useEffect(() => console.log("loggedUSER::: ", loggedUser), [loggedUser]);
 
   const router = createBrowserRouter([
     {
@@ -141,7 +142,7 @@ function AppRouter() {
         { path: "/", element: <Home /> },
         { path: "/signup", element: <Signup onSubmit={handleSignup} /> },
         { path: "/login", element: <Login onLogin={handleLogin} />},
-        { path: "/login/:userToLogin", element: <Login onLogin={handleLogin}/>},
+        { path: "/login/success/:userToLogin/:messageSuccess", element: <Login onLogin={handleLogin}/>},
         { path: "/login/:userToReset/:messageReset", element: <Login onLogin={handleLogin}/>},
         { path: "/confirm-email", element: <ConfirmUser onConfirm={confirmUser} /> },
         { path: "/confirm-email/:usernameToConfirm", element: <ConfirmUser onConfirm={confirmUser} /> },

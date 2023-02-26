@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../AuthContext/AuthContext.js";
 
@@ -7,15 +7,15 @@ function Login({ onLogin }) {
     const navigate = useNavigate();
 
     if (loggedUser) navigate("/");
-    // useEffect(() => {
-    //   console.log("loggedUser---login---", loggedUser)
-    //   loggedUser && navigate("/");
-    // }, []);
 
-    const { userToLogin, userToReset, messageReset } = useParams();
-    // console.log("LOGIN::::::::::;;; ", "usernameToReset ", userToReset, "usernameToLogin ", userToLogin, "messageReset ", messageReset)
+    const { userToLogin, userToReset, messageReset, messageSuccess } = useParams();
     
-    const messageResetSuccess = (messageReset && messageReset === "tkOK") ? "Password has been changed successfully! \\o/" : false;
+    const messageResetSuccess = (
+      messageReset && messageReset === "tkOKReset") 
+        ? "Password has been changed successfully! \\o/" 
+        : messageSuccess && messageSuccess === "userCreatedOK"
+          ? `User ${userToLogin} created successfully!! \\o/`
+          : false;
 
     // const [user, setUser] = useState({ username: "", password: ""});
     // const [user, setUser] = useState({ username: userToLogin || "tk", password: "P@ssw0rd1"});
@@ -57,46 +57,44 @@ function Login({ onLogin }) {
           </div>
         }
         <div className="bg-white shadow-md rounded px-8 pt-6 pb-3 mb-2">
-        <form className="w-full max-w-xs">
-          {/* <div className="bg-white shadow-md rounded px-8 pt-6 pb-3 mb-2"> */}
-          <div>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-                  Username
-              </label>
-              <input className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight 
-                focus:outline-none focus:shadow-outline ${missing.username ? "border-red-500" : ""}`}
-                    id="username" type="text" placeholder="Username" value={user.username} name="username" autoFocus
-                    onChange={e => setUser({...user, username: e.target.value})} />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="code">
-                Password
-              </label>
-              <input className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight 
-                focus:outline-none focus:shadow-outline ${missing.password ? "border-red-500" : ""}`}
-                    id="code" type="password" placeholder="Password" value={user.password} name="password"
-                    onChange={e => setUser({...user, password: e.target.value})}
-                    // onKeyDown={e => console.log("e.key= ", e.key)}
-                    onKeyDown={e => e.key === "Enter" && handleSubmit(e)}
-                    />
-            </div>
+          <form className="w-full max-w-xs">
+            <div>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+                    Username
+                </label>
+                <input className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight 
+                  focus:outline-none focus:shadow-outline ${missing.username ? "border-red-500" : ""}`}
+                      id="username" type="text" placeholder="Username" value={user.username} name="username" autoFocus
+                      onChange={e => setUser({...user, username: e.target.value})} />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="code">
+                  Password
+                </label>
+                <input className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight 
+                  focus:outline-none focus:shadow-outline ${missing.password ? "border-red-500" : ""}`}
+                      id="code" type="password" placeholder="Password" value={user.password} name="password"
+                      onChange={e => setUser({...user, password: e.target.value})}
+                      onKeyDown={e => e.key === "Enter" && handleSubmit(e)}
+                      />
+              </div>
 
-            {message ? <p className="text-red-500 text-xs italic mb-4">{ message }</p> : ""}
+              {message ? <p className="text-red-500 text-xs italic mb-4">{ message }</p> : ""}
 
-            <div className="flex items-center justify-center">
-              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                type="button" onClick={handleSubmit}>
-                Login
-              </button>
+              <div className="flex items-center justify-center">
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  type="button" onClick={handleSubmit}>
+                  Login
+                </button>
+              </div>
             </div>
+          </form>
+          <div className="mt-5">
+            <span className="p-1 text-xs hover:text-blue-900 hover:bg-green-300 hover:rounded hover:font-bold">
+              <button onClick={() => navigate("/forgot-password")}>Forgot Password?</button>
+            </span>
           </div>
-        </form>
-        <div className="mt-5">
-          <span className="p-1 text-xs hover:text-blue-900 hover:bg-green-300 hover:rounded hover:font-bold">
-            <button onClick={() => navigate("/forgot-password")}>Forgot Password?</button>
-          </span>
-        </div>
         </div>
       </div>
     );

@@ -9,7 +9,7 @@ function Signup({ onSubmit }) {
 
     if (loggedUser) navigate("/");
     
-    const [user, setUser] = useState({username: "tk", email: "tk@tk.ca", password: "", confirmPassword: ""});
+    const [user, setUser] = useState({username: "tk", email: "tony.kieling@gmail.com", password: "", confirmPassword: ""});
     const [missing, setMissing] = useState({username: false, email: false, password: false, confirmPassword: false});
     const [message, setMessage] = useState("");
 
@@ -84,7 +84,9 @@ function Signup({ onSubmit }) {
               <input className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight 
                focus:outline-none focus:shadow-outline ${missing.confirmPassword ? "border-red-500" : ""}`}
                     id="password-confirm" type="password" placeholder="Confirm Password" value={user.confirmPassword}
-                    onChange={e => setUser({...user, confirmPassword: e.target.value})} />
+                    onChange={e => setUser({...user, confirmPassword: e.target.value})} 
+                    onKeyDown={e => e.key === "Enter" && handleSubmit(e)}
+                    />
             </div>
 
             {message ? <p className="text-red-500 text-xs italic mb-4">{ message }</p> : ""}

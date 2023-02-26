@@ -32,7 +32,7 @@ function ResetPassword({ onResetPassword }) {
 
       const proceedReset = await onResetPassword({ username, code, newPassword });
       if (proceedReset.message)
-        navigate(`/login/${username}/ok`);
+        navigate(`/login/${username}/${proceedReset.message}`);
       else {
         setMessage(signup.error);
       }
@@ -81,7 +81,9 @@ function ResetPassword({ onResetPassword }) {
               <input className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight 
                focus:outline-none focus:shadow-outline ${missing.confirmPassword ? "border-red-500" : ""}`}
                     id="password-confirm" type="password" placeholder="Confirm Password" value={user.confirmPassword}
-                    onChange={e => setUser({...user, confirmPassword: e.target.value})} />
+                    onChange={e => setUser({...user, confirmPassword: e.target.value})} 
+                    onKeyDown={e => e.key === "Enter" && handleSubmit(e)}
+                    />
             </div>
 
             {message ? <p className="text-red-500 text-xs italic mb-4">{ message }</p> : ""}

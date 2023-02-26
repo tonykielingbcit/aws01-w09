@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 function ConfirmUser({ onConfirm }) {
     const { usernameToConfirm } = useParams();
+    const navigate = useNavigate();
   
     const [user, setUser] = useState({ username: usernameToConfirm || "", code: ""});
     const [missing, setMissing] = useState({username: false, code: false});
@@ -12,7 +13,7 @@ function ConfirmUser({ onConfirm }) {
       event.preventDefault();
       
       const {username, code } = user;
-      console.log("asd:::: ", username, code)
+      // console.log("asd:::: ", username, code)
 
       if (!username || !code) {
         setMissing({...missing,
@@ -25,7 +26,7 @@ function ConfirmUser({ onConfirm }) {
       const confirm = await onConfirm({ username, code });
       
       if (confirm.message)
-        navigate(`/login/${username}`);
+        navigate(`/login/success/${confirm.username}/${confirm.message}`);
       else {
         setMessage(confirm.error);
       }
@@ -53,7 +54,9 @@ function ConfirmUser({ onConfirm }) {
               <input className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight 
                 focus:outline-none focus:shadow-outline ${missing.code ? "border-red-500" : ""}`}
                     id="code" type="text" placeholder="Code" value={user.code} autoFocus
-                    onChange={e => setUser({...user, code: e.target.value})}/>
+                    onChange={e => setUser({...user, code: e.target.value})}
+                    onKeyDown={e => e.key === "Enter" && handleSubmit(e)}
+                    />
             </div>
 
             {message ? <p className="text-red-500 text-xs italic mb-4">{ message }</p> : ""}

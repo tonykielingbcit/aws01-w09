@@ -31,7 +31,6 @@ function Login({ onForgotPassword }) {
     };
 
     useEffect(() => {
-      // console.log("loggedUser------", loggedUser)
       loggedUser && navigate("/");
     }, []);
 
@@ -47,7 +46,9 @@ function Login({ onForgotPassword }) {
               <input className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight 
                 focus:outline-none focus:shadow-outline ${missing.username ? "border-red-500" : ""}`}
                     id="username" type="text" placeholder="Username" value={user.username} autoFocus
-                    onChange={e => setUser({...user, username: e.target.value})} />
+                    onChange={e => setUser({...user, username: e.target.value})} 
+                    onKeyDown={e => e.key === "Enter" && handleSubmit(e)}
+                    />
             </div>
             {message ? <p className="text-red-500 text-xs italic mb-4">{ message }</p> : ""}
 
@@ -57,11 +58,6 @@ function Login({ onForgotPassword }) {
                 Submit
               </button>
             </div>
-            {/* <div className="mt-5">
-              <span className="p-1 text-xs hover:text-blue-900 hover:bg-green-300 hover:rounded hover:font-bold">
-                <button onClick={() => navigate("/login")}>Login</button>
-              </span>
-            </div> */}
           </div>
         </form>
       </div>
