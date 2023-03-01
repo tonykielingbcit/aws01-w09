@@ -20,14 +20,25 @@ export default function Header() {
                 </NavLink>
 
                 { loggedUser &&
-                    <NavLink
-                        to="/user-detail"
-                        className={`menu-item ${
-                        currentLocation === "/" ? "is-active" : ""
-                        } p-2 font-bold rounded-md hover:bg-green-300 hover:text-blue-800`}
-                    >
-                        User
-                    </NavLink>
+                    <>
+                        <NavLink
+                            to="/user-detail"
+                            className={`menu-item ${
+                                currentLocation === "/" ? "is-active" : ""
+                            } p-2 font-bold rounded-md hover:bg-green-300 hover:text-blue-800`}
+                            >
+                            User
+                        </NavLink>
+                        <NavLink
+                            to="/todos"
+                            className={`menu-item ${
+                                currentLocation === "/todos" ? "is-active" : ""
+                            } p-2 font-bold rounded-md hover:bg-green-300 hover:text-blue-800`}
+                            >
+                            Todos
+                        </NavLink>
+                    </>
+
                 }
             </div>
 

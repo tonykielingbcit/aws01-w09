@@ -10,6 +10,7 @@ import ForgotPassword from "./Auth/ForgotPassword.jsx";
 import ResetPassword from "./Auth/ResetPassword.jsx";
 import Logout from "./Auth/Logout.jsx";
 import UserDetails from "./UserDetails.jsx";
+import Todos from "./Todos/Todos.jsx";
 
 import { AuthContext } from "../AuthContext/AuthContext.js";
 import { useEffect, useState } from "react";
@@ -124,7 +125,8 @@ function AppRouter() {
         { path: "/forgot-password", element: <ForgotPassword onForgotPassword={forgotPassword} /> },
         { path: "/reset-password", element: <ResetPassword /> },
         { path: "/reset-password/:userToReset", element: <ResetPassword onResetPassword={resetPassword} /> },
-        { path: "/logout", element: <Logout onLogout={logout}/> },
+        { path: "/logout", element: <Logout onLogout={logout} /> },
+        { path: "/todos", element: <Todos /> },
         { path: "*", element: <PageError />},
       ],
     },
