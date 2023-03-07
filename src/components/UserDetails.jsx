@@ -2,6 +2,12 @@ import { useEffect, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext/AuthContext.js";
 
+
+import * as cognito from "../helpers/cognito.js";
+
+
+
+
 function UserDetails() {
     const loggedUser = useContext(AuthContext);
     const navigate = useNavigate();
@@ -43,6 +49,7 @@ function UserDetails() {
       setEditDisabled(true);
     };
 
+
     useEffect(() => {
       // console.log("USERR:: ", loggedUser)
       !loggedUser && navigate("/");
@@ -53,6 +60,29 @@ function UserDetails() {
         province: "BC"
       });
     }, []);
+
+
+    const test = async () => {
+
+      const token = await cognito.getAccessToken();
+      console.log("tokennnnnn::: ", token);
+      const url = import.meta.env.VITE_USER_profile_test_put;
+      const getTest = await fetch(
+          url, 
+          {
+            method: "PUT",
+            headers: {
+              "content-type": "application/json",
+              Authorization: token
+            },
+            body:JSON.stringify({
+              data: "testttttdentist"
+            })
+          }
+        ).then(res => res.json());
+      // const getTest = await fetch("https://fkoae4ltcc.execute-api.us-west-2.amazonaws.com/updateProfile", {method: "PUT"}).then(res => res.json());
+      console.log("tes:::", getTest);
+    }
 
 
     return (
@@ -134,6 +164,7 @@ function UserDetails() {
                   </button>                
               </div>
           }
+          <button onClick={test}>TEST</button>
         </div>
       </div>
     );
