@@ -9,17 +9,18 @@ import * as cognito from "../helpers/cognito.js";
 
 
 function UserDetails() {
+    const url = `${import.meta.env.VITE_USER_profile_url}`;
     const loggedUser = useContext(AuthContext);
     const navigate = useNavigate();
     
     const [ editDisabled, setEditDisabled] = useState(true);
     const [ currentUser, setCurrentUser ] = useState({
       city: "",
-      province: ""
+      bio: ""
     });
     const [ tempUser, setTempUser ] = useState({
       city: "",
-      province: ""
+      bio: ""
     });
     const [ message, setMessage ] = useState("");
 
@@ -36,38 +37,27 @@ function UserDetails() {
       setCurrentUser({...tempUser});
     }
 
-    const submitData = () => {
+    const submitData = async () => {
       // send data to be updated on user table on cockroach db
-      if (tempUser.city === currentUser.city && tempUser.province === currentUser.province) 
+      if (tempUser.city === currentUser.city && tempUser.bio === currentUser.bio) 
         return setMessage("No changes to be applied.");
 
       setMessage("Processing...");
+      setEditDisabled(true);
       
       console.log("updating::: ", tempUser, currentUser)
-      // set new message and currentuser
-      // if fail, currentuser has be ba back to the same as tempuser
-      setEditDisabled(true);
-    };
-
-
-    useEffect(() => {
-      // console.log("USERR:: ", loggedUser)
-      !loggedUser && navigate("/");
-
-      // if user is logged, get user data from the server
-      setCurrentUser({
-        city: "Van",
-        province: "BC"
-      });
-    }, []);
-
-
-    const test = async () => {
 
       const token = await cognito.getAccessToken();
       console.log("tokennnnnn::: ", token);
-      const url = import.meta.env.VITE_USER_profile_test_put;
-      const getTest = await fetch(
+
+
+      // const currentUserId = cognito.getCurrentUser();
+      // console.log("currentUserId::: ", currentUserId)
+      // if (1) return;
+
+      // const url = `${import.meta.env.VITE_USER_profile_url}`;
+      // const url = `${import.meta.env.VITE_USER_profile_test_get}/toUpdateABC`;
+      const updateProfile = await fetch(
           url, 
           {
             method: "PUT",
@@ -76,8 +66,64 @@ function UserDetails() {
               Authorization: token
             },
             body:JSON.stringify({
-              data: "testttttdentist"
+              city: currentUser.city,
+              bio: currentUser.bio
             })
+          }
+        ).then(res => res.json());
+console.log("retuning rom Lambda::: ", updateProfile)
+      // set new message and currentuser
+      // if fail, currentuser has be ba back to the same as tempuser
+      setMessage(updateProfile.message 
+                                  ? "Profile has been updated!  \\o/" 
+                                  : updateProfile.error);
+    };
+
+
+    useEffect(() => {
+      // console.log("USERR:: ", loggedUser)
+      !loggedUser && navigate("/");
+
+      // if user is logged, get user data from the server
+      (async () => {
+        const token = await cognito.getAccessToken();
+        const getProfile = await fetch(
+          url, 
+          {
+            headers: {
+              "content-type": "application/json",
+              Authorization: token
+            }
+          }
+        ).then(res => res.json());
+        
+        setCurrentUser({
+          city: getProfile.message.city,
+          bio: getProfile.message.bio
+        });
+
+      })();
+
+    }, []);
+
+
+    const test = async () => {
+
+      const token = await cognito.getAccessToken();
+      console.log("tokennnnnn::: ", token);
+      const url = `${import.meta.env.VITE_USER_profile_url}`;
+      // const url = `${import.meta.env.VITE_USER_profile_test_get}/toUpdateABC`;
+      const getTest = await fetch(
+          url, 
+          {
+            // method: "PUT",
+            headers: {
+              "content-type": "application/json",
+              Authorization: token
+            },
+            // body:JSON.stringify({
+            //   data: "testttttdentist"
+            // })
           }
         ).then(res => res.json());
       // const getTest = await fetch("https://fkoae4ltcc.execute-api.us-west-2.amazonaws.com/updateProfile", {method: "PUT"}).then(res => res.json());
@@ -90,7 +136,7 @@ function UserDetails() {
         <div className="bg-white shadow-md rounded pt-6 pb-8 mb-4">
           <h1 className="text-2xl font-semibold text-gray-800 mb-5 ml-6 text-left">User Details</h1>
 
-          <table className="ml-12">
+          <table className="ml-12 mr-12 table-fixed">
             <tbody>
               <tr className="ml-3 border-b border-gray-300">
                 <td>
@@ -124,13 +170,16 @@ function UserDetails() {
 
               <tr className="ml-3 border-b border-gray-300">
                 <td>
-                  <label htmlFor="" className="text-lg font-bold pr-2">Province </label>
+                  <label htmlFor="" className="text-lg font-bold pr-2">Bio </label>
                 </td>
                 <td>
-                  <input 
-                    value={ currentUser.province } disabled={editDisabled}
-                    onChange={e => setCurrentUser({...currentUser, province: e.target.value})}
-                    className={`p-2 ml-2 rounded ${!editDisabled ? "border-2 border-blue-700": ""}`} />
+                  <textarea 
+                    rows={4}
+                    cols={23}
+                    value={ currentUser.bio } disabled={editDisabled}
+                    onChange={e => setCurrentUser({...currentUser, bio: e.target.value})}
+                    className={`p-2 ml-2 rounded ${!editDisabled ? "border-2 border-blue-700": ""}`}>
+                  </textarea>
                 </td>
               </tr>
             </tbody>
