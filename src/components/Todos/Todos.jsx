@@ -22,54 +22,44 @@ function Todos() {
     const loggedUser = useContext(AuthContext);
     const navigate = useNavigate();
     
+
     useEffect(() => {
-      // console.log("USERR:: ", loggedUser)
       !loggedUser && navigate("/");
 
-      // if user is logged, 
-      // setTasks(tempTasks);
+      // if user is logged, get user data from the server
+      (async () => {
+        const token = await cognito.getAccessToken();
 
-            // if user is logged, get user data from the server
-            (async () => {
-              const token = await cognito.getAccessToken();
-      
-              const getTodos = await fetch(
-                url, 
-                {
-                  headers: {
-                    "content-type": "application/json",
-                    Authorization: token
-                  }
-                }
-              ).then(res => res.json());
+        const getTodos = await fetch(
+          url, 
+          {
+            headers: {
+              "content-type": "application/json",
+              Authorization: token
+            }
+          }
+        ).then(res => res.json());
 
-              const tasksToBeSet = getTodos.message.map(e => (
-                {id: e.id, task: e.task, createdAt: e.createdat , initial: e.initial, inProgress: e.inprogress, done: e.done}
-              ));
-              console.log("tempTasks", tasksToBeSet);
+        const tasksToBeSet = getTodos.message.map(e => (
+          {id: e.id, task: e.task, createdAt: e.createdat , initial: e.initial, inProgress: e.inprogress, done: e.done}
+        ));
 
-              setTasks(tasksToBeSet);
-            })();
-      
-
-
-      
+        setTasks(tasksToBeSet);
+      })();      
     }, []);
 
 
     const openModal = (id, task, initial, inProgress, done, createdAt) => {
-      // ev.preventDfefault();
-      console.log("opeining modal: ", id, task, initial, inProgress, done)
       setTempTask({
         id, task, initial, inProgress, done, createdAt
       });
       modalToggler(true);
       setMessage("");
+      setEnableNewTask(false);
     }
 
 
     const updateTask = async taskToBeUpdated => {
-      console.log("sending data to be update:: ", taskToBeUpdated)
       const { id, task, initial, inProgress, done } = taskToBeUpdated;
 
       // const updatingTask = await new Promise(function(res, rej) {
@@ -92,10 +82,8 @@ function Todos() {
           body: JSON.stringify({taskToBeUpdated})
         }
       ).then(res => res.json());
-console.log("updatingTodo---------------- ", updatingTask)
 
-
-// console.log("updatingTask ------- ", updatingTask)
+      // when success, update the list of todos with the new data (taskToBeUpdated)
       if (updatingTask.message) {
         const createdAt = tempTask.createdAt;
         const tempTasks = tasks.filter(e => e.id !== taskToBeUpdated.id);
@@ -107,13 +95,11 @@ console.log("updatingTodo---------------- ", updatingTask)
           return 0;
         });
         setTasks(totalTasks);
-        console.log("tempTasks:: ", tempTasks)
       }
 
       return updatingTask;
-
-      // when success, update the list of todos with the new data (taskToBeUpdated)
     }
+
 
     const enableCreateNewTask = () => {
       setNewTask("");
@@ -125,6 +111,7 @@ console.log("updatingTodo---------------- ", updatingTask)
       });
       setMessage("");
     }
+
 
     const handleNewTask = async () => {
       const token = await cognito.getAccessToken();
@@ -148,19 +135,17 @@ console.log("updatingTodo---------------- ", updatingTask)
 
 
     const enableTaskDeletion = ({action, id, task}) => {
-      console.log("---------- ", action, id, task)
       setConfirmDeletion({action, id, task});
       setEnableNewTask(false);
       setMessage("");
     }
 
+
     const handleTaskDeletion = async (confirm, idToBeRemoved) => {
-      console.log("idToBeRemoved:: ", idToBeRemoved, url)
       const token = await cognito.getAccessToken();
 
       const deleteUrl = `${url}/${idToBeRemoved}`;
       if (confirm) {
-        //go to delete
         const deleteTodo = await fetch(
           deleteUrl, 
           {

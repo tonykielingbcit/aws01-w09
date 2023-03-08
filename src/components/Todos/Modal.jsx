@@ -1,14 +1,8 @@
 import React, { useState } from "react";
 
 export default function Modal({ incomingTask, modalToggler, updateTask }) {
-    console.log("modal:::", incomingTask)
     const { id, task, initial, inProgress, done } = incomingTask;
     const [ taskData, setTaskData ] = useState({
-        // id: task.id,
-        // task: task.task,
-        // initial: task.initial,
-        // inProgress: task.inProgress,
-        // done: task.done
         id, task, initial, inProgress, done
     });
     const [ tempTask, setTempTask ] = useState({
@@ -25,11 +19,9 @@ export default function Modal({ incomingTask, modalToggler, updateTask }) {
             tempTask.inProgress === inProgress && tempTask.done === done)
             return setMessage("No changes to be applied.");
 
-        // setTempTask({id, name, initial, inProgress, done});
         setMessage("Processing...");
         const result = await updateTask({id, task, initial, inProgress, done});
 
-        console.log("result", result)
         const resultMessage = result.message || result.error;
         if (result.error)
             setTaskData({
@@ -53,9 +45,9 @@ export default function Modal({ incomingTask, modalToggler, updateTask }) {
       <div
         className="fixed h-screen w-screen bg-black z-10 top-0 left-0 opacity-75"
       ></div>
-      { /** Just added */}
+
       <div className="fixed h-2/3 top-0 right-0 left-0 z-20 flex justify-center">
-        <div className="mx-4 my-4 bg-white m-8">
+        <div className="mx-4 my-4 m-8 bg-gray-200">
             <div className="flex justify-end">
                 <button 
                     className="border-2 text-red-900 px-2 m-2"
