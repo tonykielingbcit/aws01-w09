@@ -55,7 +55,7 @@ function UserDetails() {
               "content-type": "application/json",
               Authorization: token
             },
-            body:JSON.stringify({
+            body: JSON.stringify({
               city: currentUser.city,
               bio: currentUser.bio
             })

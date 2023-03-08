@@ -1,5 +1,6 @@
 // import * as dbMethods from "./db/profile-db.js";
 import * as profileFunctions from "./functions/profile.js";
+import * as todoFunctions from "./functions/todo.js";
 
 export const handler = async event => {
     console.log("EVENT::::::::::::::::::::::::::::::::::::", event)
@@ -26,6 +27,14 @@ export const handler = async event => {
                 } else if (rawPath.includes("todoId")) {
                     // it queries for a particular todo item pertencent to the current user
                 } else if (rawPath.includes("todo")) {
+                    const getAllTodos = await todoFunctions.getAllTodosByProfileId(userId);
+// console.log("allllllllllllllllllllllllllllllllltodos: userid: ", userId, getAllTodos);
+                    return {
+                        statusCode: 200,
+                        body: JSON.stringify({
+                            message: getAllTodos
+                        })
+                    };
                     // it suppose to be for query all todo items pertencent to the current user
                 } else {
                     // just in case scenario
@@ -41,6 +50,7 @@ export const handler = async event => {
             
             case "POST": {
                 // it forwards to the respective function, either profile or todo
+// console.log("POSTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT: ", incomingBody)
                 if (rawPath.includes("profile")) {
                     const {city, bio, cognitoId} = incomingBody;
                     const newProfile = await profileFunctions.addProfile(cognitoId, city, bio);
@@ -53,7 +63,16 @@ export const handler = async event => {
                         })
                     };
                 } else if (rawPath.includes("todo")) {
+                    const {task} = incomingBody;
+                    const newTask = await todoFunctions.addTodo(userId, task);
 
+                    return {
+                        statusCode: 201,
+                        body: JSON.stringify({
+                            message: newTask?.message,
+                            error: newTask?.error
+                        })
+                    };
                 } else {
                     // just in case scenario
                     return {

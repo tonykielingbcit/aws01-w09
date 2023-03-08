@@ -4,15 +4,19 @@ import { AuthContext } from "../../AuthContext/AuthContext.js";
 import Modal from "./Modal.jsx";
 import useToggle from "./useToggleModal.js";
 
-const tempTasks = [
-  {id: 1, name: "task1", createdAt: "1677623546729" , initial: true, inProgress: false, done: false},
-  {id: 2, name: "task22", createdAt: "1677623556729" , initial: false, inProgress: true, done: false},
-  {id: 3, name: "task333", createdAt: "1677623946729" , initial: false, inProgress: false, done: true},
-  {id: 4, name: "task4444", createdAt: "1677633546729" , initial: true, inProgress: false, done: false},
-  {id: 5, name: "task55555", createdAt: "1677423546729" , initial: false, inProgress: true, done: false},
-]
+import * as cognito from "../../helpers/cognito.js";
+
+
+// const tempTasks = [
+//   {id: 1, name: "task1", createdAt: "1677623546729" , initial: true, inProgress: false, done: false},
+//   {id: 2, name: "task22", createdAt: "1677623556729" , initial: false, inProgress: true, done: false},
+//   {id: 3, name: "task333", createdAt: "1677623946729" , initial: false, inProgress: false, done: true},
+//   {id: 4, name: "task4444", createdAt: "1677633546729" , initial: true, inProgress: false, done: false},
+//   {id: 5, name: "task55555", createdAt: "1677423546729" , initial: false, inProgress: true, done: false},
+// ]
 
 function Todos() {
+    const url = `${import.meta.env.VITE_USER_todo_url}`;
     const [tasks, setTasks] = useState();
     const [ enableNewTask, setEnableNewTask ] = useState(false);
     const [ newTask, setNewTask ] = useState("");
@@ -31,7 +35,36 @@ function Todos() {
       !loggedUser && navigate("/");
 
       // if user is logged, 
-      setTasks(tempTasks);
+      // setTasks(tempTasks);
+
+
+
+            // if user is logged, get user data from the server
+            (async () => {
+              const token = await cognito.getAccessToken();
+      
+              const getTodos = await fetch(
+                url, 
+                {
+                  headers: {
+                    "content-type": "application/json",
+                    Authorization: token
+                  }
+                }
+              ).then(res => res.json());
+console.log("getTodos---------------- ", getTodos)
+
+const tasksToBeSet = getTodos.message.map(e => (
+  {id: e.id, name: e.task, createdAt: e.createdat , initial: e.intial, inProgress: e.inprogress, done: e.done}
+));
+console.log("tempTasks", tasksToBeSet);
+
+setTasks(tasksToBeSet);
+            })();
+      
+
+
+      
     }, []);
 
 
@@ -79,8 +112,24 @@ console.log("updatingTask ------- ", updatingTask)
       setEnableNewTask(true);
     }
 
-    const handleNewTask = () => {
+    const handleNewTask = async () => {
       console.log("new task to be submitted:: ", newTask);
+
+      const token = await cognito.getAccessToken();
+      
+      const addTodo = await fetch(
+        url, 
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            Authorization: token
+          },
+          body: JSON.stringify({task: newTask})
+        }
+      ).then(res => res.json());
+console.log("addingTodo---------------- ", addTodo)
+
     }
 
 
@@ -135,17 +184,29 @@ console.log("updatingTask ------- ", updatingTask)
               </tr>
             </thead>
             <tbody>
-              {tasks && tasks.map(({id, name, createdAt, initial, inProgress, done}) => 
-                    <tr key={ id }>
-                      <td className="border border-slate-400 px-2"> { id } </td>
+              {tasks && tasks.map(({id, name, createdAt, initial, inProgress, done}, idNum) => {
+              {/* {tasks && tasks.map((task, idNum) => { */}
+                    {/* const {id, name, createdAt, initial, inProgress, done} = task; */}
+                    return (
+                    <tr key={ idNum + 1 }>
+                      <td className="border border-slate-400 px-2"> { idNum + 1 } </td>
                       <td className="border border-slate-400 px-2"> 
                         { name }
                       </td>
 
                       <td className="text-center px-2 border border-slate-400"> { createdAt  }</td>
-                      <td className={`text-center border-y border-slate-400 px-1 ${!!initial ? "text-yellow-500 fas fa-battery-quarter border-none" : ""}`}></td>
-                      <td className={`text-center border-y border-slate-400 px-1 ${!!inProgress ? "text-blue-700 fas fa-battery-half border-none" : ""}`}></td>
-                      <td className={`text-center border-y border-slate-400 px-1 ${!!done ? "text-green-700 fas fa-battery-full border-none" : ""}`}></td>
+                      <td 
+                        className={`text-center border-y border-slate-400 px-1 ${!!initial ? "text-yellow-500 fas fa-battery-quarter border-none" : ""}`}
+                        title="Initial Stage"
+                      ></td>
+                      <td 
+                        className={`text-center border-y border-slate-400 px-1 ${!!inProgress ? "text-blue-700 fas fa-battery-half border-none" : ""}`}
+                        title="In Progress"
+                      ></td>
+                      <td 
+                        className={`text-center border-y border-slate-400 px-1 ${!!done ? "text-green-700 fas fa-battery-full border-none" : ""}`}
+                        title="Done!"
+                      ></td>
                       <td className="border-l border-y border-slate-400 text-center">
                         <button onClick={() => openModal(id, name, initial, inProgress, done)}>
                           <i className="fas fa-edit text-[16px] text-blue-700 hover:outline-double"></i>
@@ -158,7 +219,8 @@ console.log("updatingTask ------- ", updatingTask)
                         </button>
                       </td>
                     </tr>
-              )}
+                    );
+              })}
             </tbody>
           </table>
 

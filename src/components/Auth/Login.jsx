@@ -51,7 +51,7 @@ function Login({ onLogin }) {
           // kz need to know how to get sub before login
           const token = await cognito.getAccessToken();
           const cognitoId = helperLS.getUserData(token);
-          const newProfile = await fetch(
+          await fetch(
             url, 
             {
               method: "POST",

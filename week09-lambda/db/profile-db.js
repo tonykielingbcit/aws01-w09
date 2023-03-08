@@ -28,9 +28,12 @@ export const getProfileById = async(id) => {
 
 
 export const insertProfile = async(cognitoId, city, bio) => {
+    console.log("111111111111111111111111111adddingggggg:::::::::::::: ", cognitoId, city, bio);
+
     const result = await pool.query(
         'INSERT INTO profiles (cognitoid, city, bio) VALUES ($1, $2, $3)', 
         [cognitoId, city, bio]);
+console.log("222222222222 adddingggggg:::::::::::::: ", result);
     return result;
 };
 
@@ -40,6 +43,6 @@ export async function updateProfile(id, city, bio) {
         `UPDATE profiles SET city = $1, bio = $2 WHERE cognitoid = $3;`,
         [city, bio, id]
     );
+console.log("updateProfile=====================XXXXXXXXXXX=================== ", updatedProfile);
     return updatedProfile;
 }
-
