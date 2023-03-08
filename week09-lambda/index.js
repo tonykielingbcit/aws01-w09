@@ -124,20 +124,27 @@ export const handler = async event => {
         };
         return response;
                 }
-    /*            case "DELETE": {
+    
+    
+                case "DELETE": {
                     // receive: body.itemIdToBeDelete
                     // return: new list of items in DB
-                    const body = JSON.parse(event.body);
-                    const { itemIdToBeDelete } = body;
-                    await db.removeItem(itemIdToBeDelete);
-                    const newItemsList = await db.getAllItems();
-                    msg = newItemsList;
-                    break;
-                }*/
+                    // const body = JSON.parse(event.body);
+                    const { todoIdToBeRemoved } = event.pathParameters;
+                    const removeTodo = await todoFunctions.removeTodo(todoIdToBeRemoved);
+                    const success = removeTodo?.message ? true : false;
+                    const response = {
+                        statusCode: success ? 200 : 400,
+                        body: JSON.stringify({
+                            message: success && "Todo item removed! \\o/",
+                            error: !success && "Problem to removed Todo item. :/"
+                        })
+                    };
+                    return response;
+                    // break;
+                }
                 default:
                 // Gateway API suppose to handle this before this point
-                    // msg = "something wrong :(";
-                    // break
             }
         
             // this code is suppose to be not reachable

@@ -32,9 +32,9 @@ console.log("todos2222222222222222222222:::::::::::::::::::::::::::::::::::::::"
 
 export const insertTodo = async(profileId, task) => {
     const result = await pool.query(
-        'INSERT INTO todos (profileId, task) VALUES ($1, $2)', 
+        'INSERT INTO todos (profileId, task) VALUES ($1, $2) RETURNING *', 
         [profileId, task]);
-    return result;
+    return result.rows[0];
 };
 
 /*
@@ -47,3 +47,11 @@ export async function updateProfile(id, city, bio) {
 }
 
 */
+
+export const deleteTodo = async(taskId) => {
+    const result = await pool.query(
+        'DELETE FROM todos WHERE id = $1', 
+        [taskId]);
+console.log("DELETEEEEEEEEEEEEEEEE========================== ", result)
+    return result;
+};

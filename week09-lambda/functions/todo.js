@@ -15,8 +15,10 @@ export const getTodoById = async todoId => {
 
 export const addTodo = async (profileId, task) => {
     try {        
-        const newTodo = await todoDbMethods.insertTodo(profileId, task);
-console.log('NEW TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO: ', newTodo)
+        let newTodo = await todoDbMethods.insertTodo(profileId, task);
+console.log('NEW TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOxxxxxxxxxxxxxxxxxx: ', newTodo)
+        const createdAt = newTodo.createdat;
+        newTodo = {...newTodo, createdAt};
         return ({ message: newTodo });
     } catch(err) {
         console.log("###ERROR on addTodo: ", err.messsage || err);
@@ -39,3 +41,15 @@ export const updateProfile = async (userId, city, bio) => {
 };
 
 */
+
+export const removeTodo = async (taskId) => {
+    try {        
+console.log('delete TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOxxxxxxxxxxxxxxxxxx: ', taskId)
+        const rmTodo = await todoDbMethods.deleteTodo(taskId);
+        
+        return ({ message: rmTodo });
+    } catch(err) {
+        console.log("###ERROR on addTodo: ", err.messsage || err);
+        return ({ error: "Error on add Todo"});
+    }
+};

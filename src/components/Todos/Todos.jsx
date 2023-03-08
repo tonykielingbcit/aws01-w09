@@ -18,14 +18,16 @@ import * as cognito from "../../helpers/cognito.js";
 function Todos() {
     const url = `${import.meta.env.VITE_USER_todo_url}`;
     const [tasks, setTasks] = useState();
-    const [ enableNewTask, setEnableNewTask ] = useState(false);
-    const [ newTask, setNewTask ] = useState("");
+    const [enableNewTask, setEnableNewTask ] = useState(false);
+    const [newTask, setNewTask ] = useState("");
     const [confirmDeletion, setConfirmDeletion] = useState({
       action: false,
-      id: ""
+      id: "",
+      task: ""
     });
     const { showModal, modalToggler } = useToggle();
     const [ tempTask, setTempTask ] = useState("");
+    const [message, setMessage] = useState("");
 
     const loggedUser = useContext(AuthContext);
     const navigate = useNavigate();
@@ -36,8 +38,6 @@ function Todos() {
 
       // if user is logged, 
       // setTasks(tempTasks);
-
-
 
             // if user is logged, get user data from the server
             (async () => {
@@ -52,10 +52,10 @@ function Todos() {
                   }
                 }
               ).then(res => res.json());
-console.log("getTodos---------------- ", getTodos)
+// console.log("getTodos---------------- ", getTodos)
 
 const tasksToBeSet = getTodos.message.map(e => (
-  {id: e.id, name: e.task, createdAt: e.createdat , initial: e.intial, inProgress: e.inprogress, done: e.done}
+  {id: e.id, task: e.task, createdAt: e.createdat , initial: e.intial, inProgress: e.inprogress, done: e.done}
 ));
 console.log("tempTasks", tasksToBeSet);
 
@@ -68,19 +68,20 @@ setTasks(tasksToBeSet);
     }, []);
 
 
-    const openModal = (id, name, initial, inProgress, done) => {
+    const openModal = (id, task, initial, inProgress, done) => {
       // ev.preventDfefault();
       console.log("opeining modal: ", id, name, initial, inProgress, done)
       setTempTask({
-        id, name, initial, inProgress, done
+        id, task, initial, inProgress, done
       });
       modalToggler(true);
+      setMessage("");
     }
 
 
     const updateTask = async taskToBeUpdated => {
       console.log("sending data to be update:: ", taskToBeUpdated)
-      const { id, name, initial, inProgress, done } = taskToBeUpdated;
+      const { id, task, initial, inProgress, done } = taskToBeUpdated;
 
       const updatingTask = await new Promise(function(res, rej) {
         setTimeout(() => {
@@ -88,10 +89,10 @@ setTasks(tasksToBeSet);
           // res({error: "Something wrong happened! :/"});
         }, 2000);
       });
-console.log("updatingTask ------- ", updatingTask)
+// console.log("updatingTask ------- ", updatingTask)
       if (updatingTask.message) {
         const tempTasks = tasks.filter(e => e.id !== taskToBeUpdated.id);
-        const tempNewTask = {id, name, initial, inProgress, done};
+        const tempNewTask = {id, task, initial, inProgress, done};
         const totalTasks = [...tempTasks, tempNewTask];
         totalTasks.sort((a, b) => {
           if (a.id < b.id) return -1;
@@ -110,6 +111,12 @@ console.log("updatingTask ------- ", updatingTask)
     const enableCreateNewTask = () => {
       setNewTask("");
       setEnableNewTask(true);
+      setConfirmDeletion({
+        action: false,
+        id: "",
+        task: ""
+      });
+      setMessage("");
     }
 
     const handleNewTask = async () => {
@@ -129,7 +136,50 @@ console.log("updatingTask ------- ", updatingTask)
         }
       ).then(res => res.json());
 console.log("addingTodo---------------- ", addTodo)
+        const newTodoItem = addTodo.message;
+console.log("newTodoItem - ", newTodoItem)
+        setTasks([...tasks, newTodoItem]);
+    }
 
+
+    const enableTaskDeletion = ({action, id, task}) => {
+      console.log("---------- ", action, id, task)
+      setConfirmDeletion({action, id, task});
+      setEnableNewTask(false);
+      setMessage("");
+    }
+
+    const handleTaskDeletion = async (confirm, idToBeRemoved) => {
+      console.log("idToBeRemoved:: ", idToBeRemoved, url)
+      const token = await cognito.getAccessToken();
+
+      const deleteUrl = `${url}/${idToBeRemoved}`;
+      if (confirm) {
+        //go to delete
+        const deleteTodo = await fetch(
+          deleteUrl, 
+          {
+            method: "DELETE",
+            headers: {
+              "content-type": "application/json",
+              Authorization: token
+            }
+          }
+        ).then(res => res.json());
+
+        console.log("deleteTodo=== ", deleteTodo)
+        setMessage(deleteTodo.message || deleteTodo.error);
+        const tempTasks = tasks.filter(e => e.id !== idToBeRemoved);
+        setTasks(tempTasks);
+      }
+      
+      setConfirmDeletion({
+        action: false,
+        id: "",
+        task: ""
+      });
+      console.log("got delete!!")
+      return;
     }
 
 
@@ -165,11 +215,20 @@ console.log("addingTodo---------------- ", addTodo)
 
           { confirmDeletion.action &&
             <div className="my-6">
-              <label htmlFor="" className="flex justify-center text-md font-bold mb-2"> Are you sure you want to delete Task id '{confirmDeletion.id}'?</label>
+              <label htmlFor="" className="flex justify-center text-md font-bold mb-2"> Are you sure you want to delete Task '{confirmDeletion.task}'?</label>
               <div className="text-center">
-                <button className="w-20 bg-green-400 rounded-md" onClick={() => console.log("go to delete task") }> Yes </button>
-                <button className="w-20 bg-red-400 rounded-md ml-1" onClick={ () => setConfirmDeletion(false) }> No </button>
+                <button className="w-20 bg-green-400 rounded-md" onClick={() => handleTaskDeletion(true, confirmDeletion.id) }> Yes </button>
+                <button className="w-20 bg-red-400 rounded-md ml-1" onClick={ () => handleTaskDeletion(false) }> No </button>
               </div>
+            </div>
+          }
+
+
+          { message &&
+            <div className="m-4 mb-6 flex justify-center items-center">
+              <span className="border-2 px-6 py-2 rounded-lg border-slate-500">
+                { message }
+              </span>
             </div>
           }
 
@@ -184,17 +243,32 @@ console.log("addingTodo---------------- ", addTodo)
               </tr>
             </thead>
             <tbody>
-              {tasks && tasks.map(({id, name, createdAt, initial, inProgress, done}, idNum) => {
+              {tasks && tasks.map(({id, task, createdAt, initial, inProgress, done}, idNum) => {
               {/* {tasks && tasks.map((task, idNum) => { */}
                     {/* const {id, name, createdAt, initial, inProgress, done} = task; */}
+                    // console.log("createdAt: ", createdAt)
+                    const dt = new Date(createdAt)
+                    // const dtToDisplay = dt.toLocaleDateString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}) 
+                    // const dtToDisplay = dt.toLocaleDateString('en-us', { year:"numeric", month:"short", day:"numeric"})
+                    const dtOptions = {  
+                        year: "numeric", month: "short", day: "numeric"
+                      };  
+                    const tmOptions = { hour: "2-digit", minute: "2-digit", hour12: false };
+                    const dateToDisplay = `${dt.toLocaleDateString('en-US', dtOptions)} - ${dt.toLocaleTimeString("en-US", tmOptions)}`;
+                    // console.log("dt: ", dt.toLocaleDateString("en-US", dtOptions));
+                    // console.log("dt: ", dt.toLocaleTimeString("en-US", tmOptions));
+                    initial = idNum === 0 && true;
+                    inProgress = idNum === 2 && true;
+                    done = idNum === 1 && true;
+
                     return (
-                    <tr key={ idNum + 1 }>
-                      <td className="border border-slate-400 px-2"> { idNum + 1 } </td>
+                    <tr key={ idNum + 1 } >
+                      <td className="border border-slate-400 px-2"> { (`${idNum + 1}`).padStart(3, "0") } </td>
                       <td className="border border-slate-400 px-2"> 
-                        { name }
+                        { task }
                       </td>
 
-                      <td className="text-center px-2 border border-slate-400"> { createdAt  }</td>
+                      <td className="text-center px-2 border border-slate-400"> { dateToDisplay  }</td>
                       <td 
                         className={`text-center border-y border-slate-400 px-1 ${!!initial ? "text-yellow-500 fas fa-battery-quarter border-none" : ""}`}
                         title="Initial Stage"
@@ -208,12 +282,13 @@ console.log("addingTodo---------------- ", addTodo)
                         title="Done!"
                       ></td>
                       <td className="border-l border-y border-slate-400 text-center">
-                        <button onClick={() => openModal(id, name, initial, inProgress, done)}>
+                        <button onClick={() => openModal(id, task, initial, inProgress, done)}>
                           <i className="fas fa-edit text-[16px] text-blue-700 hover:outline-double"></i>
                         </button>
                       </td>
                       <td className="border-y border-slate-400 text-center">
-                        <button onClick={() => setConfirmDeletion({action: true, id})}>
+                        {/* <button onClick={() => setConfirmDeletion({action: true, id, task})}> */}
+                        <button onClick={() => enableTaskDeletion({action: true, id, task})}>
                           <i className="far fa-trash-alt text-red-600 text-[16px] hover:text-red-600 hover:outline-double" 
                           ></i>
                         </button>
