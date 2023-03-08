@@ -1,46 +1,48 @@
 import React, { useState } from "react";
 
-export default function Modal({ task, modalToggler, updateTask }) {
-    // console.log("modal:::", task)
+export default function Modal({ incomingTask, modalToggler, updateTask }) {
+    console.log("modal:::", incomingTask)
+    const { id, task, initial, inProgress, done } = incomingTask;
     const [ taskData, setTaskData ] = useState({
-        id: task.id,
-        name: task.name,
-        initial: task.initial,
-        inProgress: task.inProgress,
-        done: task.done
+        // id: task.id,
+        // task: task.task,
+        // initial: task.initial,
+        // inProgress: task.inProgress,
+        // done: task.done
+        id, task, initial, inProgress, done
     });
     const [ tempTask, setTempTask ] = useState({
-        id: task.id,
-        name: task.name,
-        initial: task.initial,
-        inProgress: task.inProgress,
-        done: task.done
+        id, task, initial, inProgress, done
     });
     const [ message, setMessage ] = useState("");
+    const [ enableClose, setEnableClose] = useState(false);
 
     const handleUpdating = async ev => {
         ev.preventDefault();
-        const { id, name, initial, inProgress, done } = taskData;
+        const { id, task, initial, inProgress, done } = taskData;
         
-        if (tempTask.name === name && tempTask.initial === initial && 
+        if (tempTask.task === name && tempTask.initial === initial && 
             tempTask.inProgress === inProgress && tempTask.done === done)
             return setMessage("No changes to be applied.");
 
         // setTempTask({id, name, initial, inProgress, done});
         setMessage("Processing...");
-        const result = await updateTask({id, name, initial, inProgress, done});
+        const result = await updateTask({id, task, initial, inProgress, done});
+
         console.log("result", result)
         const resultMessage = result.message || result.error;
         if (result.error)
             setTaskData({
                 id: tempTask.id,
-                name: tempTask.name,
+                task: tempTask.task,
                 initial: tempTask.initial,
                 inProgress: tempTask.inProgress,
                 done: tempTask.done
             });
-        else
-            setTempTask({id, name, initial, inProgress, done});
+        else {
+            setTempTask({id, task, initial, inProgress, done});
+            setEnableClose(true);
+        }
 
         setMessage(resultMessage);
     }
@@ -67,18 +69,17 @@ export default function Modal({ task, modalToggler, updateTask }) {
                     <div className="ml-3 w-full">
                         <label htmlFor="" className="text-lg font-bold pr-2">Task </label>
                         <input 
-                            value={ taskData.name }
-                            // name= "name"
-                            onChange = {e => setTaskData({...taskData, name: e.target.value})}
+                            value={ taskData.task }
+                            onChange = {e => setTaskData({...taskData, task: e.target.value})}
                             className="p-2 ml-2 rounded border-2 border-blue-700" />
                     </div>
 
                     <div className="w-full ml-3 mt-6 flex flex-col">
                         <label htmlFor="" className="text-lg font-bold pr-2 mb-4">Status </label>
-                        <div className="w-full">
+                        <div>
                             <button 
                                 onClick={() => setTaskData({...taskData, initial: true, inProgress: false, done: false})}
-                                className={`w-1/3 rounded-lg border-2 font-semibold ${taskData.initial ? "bg-yellow-500 text-red-600" : "border-yellow-500"}`}
+                                className={`w-1/3 rounded-lg border-2 font-semibold ${taskData.initial ? "bg-green-700 text-yellow-500" : "border-green-700"}`}
                             >
                                 Initial
                             </button>
@@ -86,11 +87,11 @@ export default function Modal({ task, modalToggler, updateTask }) {
                                 onClick={() => setTaskData({...taskData, initial: false, inProgress: true, done: false})}
                                 className={`w-1/3 rounded-lg border-2 font-semibold ${taskData.inProgress ? "bg-blue-700 text-slate-100" : "border-blue-700"}`}
                             >
-                                Done
+                                In Progress
                             </button>
                             <button 
                                 onClick={() => setTaskData({...taskData, initial: false, inProgress: false, done: true})}
-                                className={`w-1/3 rounded-lg border-2 font-semibold ${taskData.done ? "bg-green-700 text-yellow-500" : "border-green-700"}`}
+                                className={`w-1/3 rounded-lg border-2 font-semibold ${taskData.done ? "bg-yellow-500 text-red-600" : "border-yellow-500"}`}
                             >
                                 Done
                             </button>
@@ -108,7 +109,9 @@ export default function Modal({ task, modalToggler, updateTask }) {
 
                 <div className="text-center w-full mt-8 mb-6">
                     <button className="w-1/3 py-1 bg-green-400 rounded-md hover:bg-green-600" onClick={ handleUpdating }> Save </button>
-                    <button className="w-1/3 py-1 bg-red-400 rounded-md ml-1 hover:bg-red-600" onClick={ () => modalToggler() }> Cancel </button>
+                    <button className="w-1/3 py-1 bg-red-400 rounded-md ml-1 hover:bg-red-600" onClick={ () => modalToggler() }>
+                         { enableClose ? "Close" : "Cancel"} 
+                    </button>
                 </div>
             </div>
         </div>

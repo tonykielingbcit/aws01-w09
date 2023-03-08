@@ -101,8 +101,17 @@ export const handler = async event => {
                                 error: profile?.error
                             })
                         };
-                    } else if (rawPath.includes("todoId")) {
-
+                    } else if (rawPath.includes("todo")) {
+                        const {id, task, initial, inProgress, done} = incomingBody.taskToBeUpdated;
+                        const todo = await todoFunctions.updateTodo(id, task, initial, inProgress, done);
+                        
+                        return {
+                            statusCode: todo?.message ? 200 : 500,
+                            body: JSON.stringify({
+                                message: todo?.message,
+                                error: todo?.error
+                            })
+                        };
                     } else {
                         // just in case scenario
                         return {
@@ -113,16 +122,16 @@ export const handler = async event => {
                         };
                     }
     
-        const response = {
-            statusCode: 200,
-            body: JSON.stringify({
-                message: 'Hello from Lambda PUTTTT!',
-                receivedData: event.body,
-                // profiles,
-                paramReceived: event.pathParameters.profileIdToUpdate
-            }),
-        };
-        return response;
+        // const response = {
+        //     statusCode: 200,
+        //     body: JSON.stringify({
+        //         message: 'Hello from Lambda PUTTTT!',
+        //         receivedData: event.body,
+        //         // profiles,
+        //         paramReceived: event.pathParameters.profileIdToUpdate
+        //     }),
+        // };
+        // return response;
                 }
     
     

@@ -3,17 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../AuthContext/AuthContext.js";
 import Modal from "./Modal.jsx";
 import useToggle from "./useToggleModal.js";
-
 import * as cognito from "../../helpers/cognito.js";
-
-
-// const tempTasks = [
-//   {id: 1, name: "task1", createdAt: "1677623546729" , initial: true, inProgress: false, done: false},
-//   {id: 2, name: "task22", createdAt: "1677623556729" , initial: false, inProgress: true, done: false},
-//   {id: 3, name: "task333", createdAt: "1677623946729" , initial: false, inProgress: false, done: true},
-//   {id: 4, name: "task4444", createdAt: "1677633546729" , initial: true, inProgress: false, done: false},
-//   {id: 5, name: "task55555", createdAt: "1677423546729" , initial: false, inProgress: true, done: false},
-// ]
 
 function Todos() {
     const url = `${import.meta.env.VITE_USER_todo_url}`;
@@ -26,7 +16,7 @@ function Todos() {
       task: ""
     });
     const { showModal, modalToggler } = useToggle();
-    const [ tempTask, setTempTask ] = useState("");
+    const [tempTask, setTempTask ] = useState("");
     const [message, setMessage] = useState("");
 
     const loggedUser = useContext(AuthContext);
@@ -52,14 +42,13 @@ function Todos() {
                   }
                 }
               ).then(res => res.json());
-// console.log("getTodos---------------- ", getTodos)
 
-const tasksToBeSet = getTodos.message.map(e => (
-  {id: e.id, task: e.task, createdAt: e.createdat , initial: e.intial, inProgress: e.inprogress, done: e.done}
-));
-console.log("tempTasks", tasksToBeSet);
+              const tasksToBeSet = getTodos.message.map(e => (
+                {id: e.id, task: e.task, createdAt: e.createdat , initial: e.initial, inProgress: e.inprogress, done: e.done}
+              ));
+              console.log("tempTasks", tasksToBeSet);
 
-setTasks(tasksToBeSet);
+              setTasks(tasksToBeSet);
             })();
       
 
@@ -68,11 +57,11 @@ setTasks(tasksToBeSet);
     }, []);
 
 
-    const openModal = (id, task, initial, inProgress, done) => {
+    const openModal = (id, task, initial, inProgress, done, createdAt) => {
       // ev.preventDfefault();
-      console.log("opeining modal: ", id, name, initial, inProgress, done)
+      console.log("opeining modal: ", id, task, initial, inProgress, done)
       setTempTask({
-        id, task, initial, inProgress, done
+        id, task, initial, inProgress, done, createdAt
       });
       modalToggler(true);
       setMessage("");
@@ -83,20 +72,38 @@ setTasks(tasksToBeSet);
       console.log("sending data to be update:: ", taskToBeUpdated)
       const { id, task, initial, inProgress, done } = taskToBeUpdated;
 
-      const updatingTask = await new Promise(function(res, rej) {
-        setTimeout(() => {
-          res({message: "Task updated successfully! \o/"});
-          // res({error: "Something wrong happened! :/"});
-        }, 2000);
-      });
+      // const updatingTask = await new Promise(function(res, rej) {
+      //   setTimeout(() => {
+      //     res({message: "Task updated successfully! \o/"});
+      //     // res({error: "Something wrong happened! :/"});
+      //   }, 2000);
+      // });
+
+      const token = await cognito.getAccessToken();
+      
+      const updatingTask = await fetch(
+        url, 
+        {
+          method: "PUT",
+          headers: {
+            "content-type": "application/json",
+            Authorization: token
+          },
+          body: JSON.stringify({taskToBeUpdated})
+        }
+      ).then(res => res.json());
+console.log("updatingTodo---------------- ", updatingTask)
+
+
 // console.log("updatingTask ------- ", updatingTask)
       if (updatingTask.message) {
+        const createdAt = tempTask.createdAt;
         const tempTasks = tasks.filter(e => e.id !== taskToBeUpdated.id);
-        const tempNewTask = {id, task, initial, inProgress, done};
+        const tempNewTask = {id, task, initial, inProgress, done, createdAt};
         const totalTasks = [...tempTasks, tempNewTask];
         totalTasks.sort((a, b) => {
-          if (a.id < b.id) return -1;
-          if (a.id > b.id) return 1;
+          if (a.createdAt < b.createdAt) return -1;
+          if (a.createdAt > b.createdAt) return 1;
           return 0;
         });
         setTasks(totalTasks);
@@ -120,8 +127,6 @@ setTasks(tasksToBeSet);
     }
 
     const handleNewTask = async () => {
-      console.log("new task to be submitted:: ", newTask);
-
       const token = await cognito.getAccessToken();
       
       const addTodo = await fetch(
@@ -135,10 +140,10 @@ setTasks(tasksToBeSet);
           body: JSON.stringify({task: newTask})
         }
       ).then(res => res.json());
-console.log("addingTodo---------------- ", addTodo)
         const newTodoItem = addTodo.message;
-console.log("newTodoItem - ", newTodoItem)
         setTasks([...tasks, newTodoItem]);
+        setMessage(newTodoItem && "Todo added successfully! \\o/");
+        setNewTask("");
     }
 
 
@@ -167,7 +172,6 @@ console.log("newTodoItem - ", newTodoItem)
           }
         ).then(res => res.json());
 
-        console.log("deleteTodo=== ", deleteTodo)
         setMessage(deleteTodo.message || deleteTodo.error);
         const tempTasks = tasks.filter(e => e.id !== idToBeRemoved);
         setTasks(tempTasks);
@@ -184,12 +188,12 @@ console.log("newTodoItem - ", newTodoItem)
 
 
     return (
-      <div className="border-2 border-red-500 flex flex-col mt-9 bg-gray-200 rounded-lg w-11/12 sm:w-3/4 lg:w-2/5">
+      <div className="flex flex-col mt-9 bg-gray-200 rounded-lg w-11/12 sm:w-3/4 lg:w-2/5">
         
         { showModal && 
           <Modal 
             modalToggler = { modalToggler }
-            task = { tempTask }
+            incomingTask = { tempTask }
             updateTask = { updateTask }
           />
         }
@@ -237,57 +241,60 @@ console.log("newTodoItem - ", newTodoItem)
               <tr>
                 <th className="text-md font-bold border border-slate-400"> Id </th>
                 <th className="text-md font-bold border border-slate-400"> Task </th>
-                <th className="text-md px-2font-bold border border-slate-400"> Create at </th>
-                <th colSpan={3} className="text-md font-bold border border-slate-400"> Status </th>
+                <th className="text-md px-2 font-bold border border-slate-400"> Create at </th>
+                <th colSpan={3} className="text-md font-bold border border-slate-400 w-20"> Status </th>
                 <th colSpan={2} className="text-md px-2 font-bold border border-slate-400"> Action </th>
               </tr>
             </thead>
             <tbody>
               {tasks && tasks.map(({id, task, createdAt, initial, inProgress, done}, idNum) => {
-              {/* {tasks && tasks.map((task, idNum) => { */}
-                    {/* const {id, name, createdAt, initial, inProgress, done} = task; */}
-                    // console.log("createdAt: ", createdAt)
                     const dt = new Date(createdAt)
-                    // const dtToDisplay = dt.toLocaleDateString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}) 
-                    // const dtToDisplay = dt.toLocaleDateString('en-us', { year:"numeric", month:"short", day:"numeric"})
                     const dtOptions = {  
                         year: "numeric", month: "short", day: "numeric"
                       };  
                     const tmOptions = { hour: "2-digit", minute: "2-digit", hour12: false };
                     const dateToDisplay = `${dt.toLocaleDateString('en-US', dtOptions)} - ${dt.toLocaleTimeString("en-US", tmOptions)}`;
-                    // console.log("dt: ", dt.toLocaleDateString("en-US", dtOptions));
-                    // console.log("dt: ", dt.toLocaleTimeString("en-US", tmOptions));
-                    initial = idNum === 0 && true;
-                    inProgress = idNum === 2 && true;
-                    done = idNum === 1 && true;
 
                     return (
-                    <tr key={ idNum + 1 } >
+                    <tr key={ idNum + 1 } className="border border-solid border-slate-400">
                       <td className="border border-slate-400 px-2"> { (`${idNum + 1}`).padStart(3, "0") } </td>
-                      <td className="border border-slate-400 px-2"> 
-                        { task }
+                      <td className="p-1 px-2 max-w-[200px]"> 
+                        <div 
+                          className="truncate hover:cursor-pointer"
+                          onClick={() => openModal(id, task, initial, inProgress, done, createdAt)}
+                        >
+                          { task }
+                        </div>
                       </td>
 
                       <td className="text-center px-2 border border-slate-400"> { dateToDisplay  }</td>
                       <td 
-                        className={`text-center border-y border-slate-400 px-1 ${!!initial ? "text-yellow-500 fas fa-battery-quarter border-none" : ""}`}
-                        title="Initial Stage"
-                      ></td>
+                        title= {!!initial && "Initial Stage"}
+                      >
+                        <div 
+                          className={`flex justify-center align-middle text-center px-1 w-6 ${!!initial ? "text-green-700 fas fa-battery-full border-none" : ""}`}
+                        ></div>
+                      </td>
                       <td 
-                        className={`text-center border-y border-slate-400 px-1 ${!!inProgress ? "text-blue-700 fas fa-battery-half border-none" : ""}`}
-                        title="In Progress"
-                      ></td>
+                        title= {!!inProgress && "In Progress"}
+                      >
+                        <div 
+                          className={`flex justify-center align-middle text-center px-1 w-6 ${!!inProgress ? "text-blue-700 fas fa-battery-half border-none" : ""}`}
+                        ></div>
+                      </td>
                       <td 
-                        className={`text-center border-y border-slate-400 px-1 ${!!done ? "text-green-700 fas fa-battery-full border-none" : ""}`}
-                        title="Done!"
-                      ></td>
+                        title= {!!done && "Done!"}
+                      >
+                        <div 
+                          className={`flex justify-center align-middle text-center px-1 w-6 ${!!done ? "text-yellow-500 fas fa-battery-quarter border-none" : ""}`}
+                        ></div>
+                      </td>
                       <td className="border-l border-y border-slate-400 text-center">
-                        <button onClick={() => openModal(id, task, initial, inProgress, done)}>
+                        <button onClick={() => openModal(id, task, initial, inProgress, done, createdAt)}>
                           <i className="fas fa-edit text-[16px] text-blue-700 hover:outline-double"></i>
                         </button>
                       </td>
                       <td className="border-y border-slate-400 text-center">
-                        {/* <button onClick={() => setConfirmDeletion({action: true, id, task})}> */}
                         <button onClick={() => enableTaskDeletion({action: true, id, task})}>
                           <i className="far fa-trash-alt text-red-600 text-[16px] hover:text-red-600 hover:outline-double" 
                           ></i>

@@ -16,7 +16,6 @@ export const getTodoById = async todoId => {
 export const addTodo = async (profileId, task) => {
     try {        
         let newTodo = await todoDbMethods.insertTodo(profileId, task);
-console.log('NEW TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOxxxxxxxxxxxxxxxxxx: ', newTodo)
         const createdAt = newTodo.createdat;
         newTodo = {...newTodo, createdAt};
         return ({ message: newTodo });
@@ -26,25 +25,27 @@ console.log('NEW TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOxxxxxxxxxxxxxxxxxx: ', 
     }
 };
 
-/*
-export const updateProfile = async (userId, city, bio) => {
-        try {
-            // for test purpose
-            if (city === "error" || bio === "error") throw({message: "all good"});
+
+export const updateTodo = async (id, task, initial, inProgress, done) => {
+        try {            
+            const uptTodo = await todoDbMethods.updateTodo(id, task, initial, inProgress, done);
+console.log("todoooooooooooooooooooo AFTERRRRRR updating:::::::::::::::::: ", uptTodo)
+
+            const success = uptTodo?.rowCount > 0 ? true : false;
             
-            const user = await dbMethods.updateProfile(userId, city, bio);
-            return ({ message: user });
+            return ({ 
+                message: success && "Todo updated successfully! \\o/ " ,
+                error: !success && "Problem updating Todo.. :/"
+            });
         } catch(err) {
-            console.log("###ERROR on updateProfile: ", err.messsage || err);
-            return ({ error: "Error on updating Profile"});
+            console.log("###ERROR on updateTodo: ", err.messsage || err);
+            return ({ error: "Error on updating Todo. :/"});
         }
 };
 
-*/
 
 export const removeTodo = async (taskId) => {
-    try {        
-console.log('delete TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOxxxxxxxxxxxxxxxxxx: ', taskId)
+    try {
         const rmTodo = await todoDbMethods.deleteTodo(taskId);
         
         return ({ message: rmTodo });

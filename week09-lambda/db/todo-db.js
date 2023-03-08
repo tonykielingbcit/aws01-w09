@@ -17,7 +17,6 @@ export const getAllTodos = async (profileId) => {
   const res = await pool.query(
       "SELECT * FROM todos WHERE profileid = $1", [profileId]
   );
-// console.log("todos1111111111111111111:::::::::::::::::::::::::::::::::::::::", res)
   return res.rows
 }
 
@@ -37,21 +36,21 @@ export const insertTodo = async(profileId, task) => {
     return result.rows[0];
 };
 
-/*
-export async function updateProfile(id, city, bio) {
-    const updatedProfile = await pool.query(
-        `UPDATE profiles SET city = $1, bio = $2 WHERE cognitoid = $3;`,
-        [city, bio, id]
+
+
+export async function updateTodo(id, task, initial, inProgress, done) {
+    const updatedTodo = await pool.query(
+        `UPDATE todos SET task = $1, initial = $2, inProgress = $3, done = $4 WHERE id = $5;`,
+        [task, initial, inProgress, done, id]
     );
-    return updatedProfile;
+console.log("UPDATETODOOOOOOOOOOOOOOOOOOOOOOO::;;;;;;;;;;;; ", updatedTodo)
+    return updatedTodo;
 }
 
-*/
 
 export const deleteTodo = async(taskId) => {
     const result = await pool.query(
         'DELETE FROM todos WHERE id = $1', 
         [taskId]);
-console.log("DELETEEEEEEEEEEEEEEEE========================== ", result)
     return result;
 };
