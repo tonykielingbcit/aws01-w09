@@ -15,7 +15,6 @@ import Todos from "./Todos/Todos.jsx";
 import { AuthContext } from "../AuthContext/AuthContext.js";
 import { useEffect, useState } from "react";
 import * as cognito from "../helpers/cognito.js";
-// import * as jwt from "../helpers/handleLocalStorage.js";
 
 function AppRouter() {
   const [loggedUser, setLoggedUser] = useState("");
@@ -32,7 +31,7 @@ function AppRouter() {
 
   const confirmUser = async ({ username, code }) => {
     try {
-      await cognito.confirmUser({ username, code });
+      const conf = await cognito.confirmUser({ username, code });
       return ({ message: "userCreatedOK", username });
     } catch (err) {
       console.error(`###ERROR: ${err.message || err }`);
@@ -59,9 +58,7 @@ function AppRouter() {
 
   const forgotPassword = async ({ username }) => {
     try {
-      // console.log("forgotPasswd======== username:::: ", username)
       const forgotPasswd = await cognito.forgotPassword({ username });
-      // console.log("forgotPasswd======== ", forgotPasswd)
 
       return ({ message: "OK" });
     } catch(err) {
@@ -72,9 +69,8 @@ function AppRouter() {
 
   const resetPassword = async ({ username, code, newPassword }) => {
     try {
-      const forgotPasswd = await cognito.resetPassword({ username, code, newPassword });
-      // console.log("forgotPasswd======== ", forgotPasswd)
-      // this message is like a code for the successfull reset password message be displayed
+      await cognito.resetPassword({ username, code, newPassword });
+
       return ({ message: "tkOKReset" });
     } catch(err) {
       console.error(`###ERROR: ${err.message || err }`);

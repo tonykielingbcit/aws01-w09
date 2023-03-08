@@ -2,7 +2,11 @@ import { useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../AuthContext/AuthContext.js";
 
+import * as cognito from "../../helpers/cognito.js";
+import * as helperLS from "../../helpers/handleLocalStorage.js";
+
 function Login({ onLogin }) {
+    const url = `${import.meta.env.VITE_USER_profile_url}`;
     const loggedUser = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -40,9 +44,31 @@ function Login({ onLogin }) {
       setMessage("Processing...");
 
       const proceedLogin = await onLogin({ username, password });
-      if (proceedLogin.message)
+      if (proceedLogin.message) {
+
+          // check and add new profile on DB if it does not exist
+          // it should be done on the confirm stage, but for now it is being done on login
+          // kz need to know how to get sub before login
+          const token = await cognito.getAccessToken();
+          const cognitoId = helperLS.getUserData(token);
+          const newProfile = await fetch(
+            url, 
+            {
+              method: "POST",
+              headers: {
+                "content-type": "application/json",
+                Authorization: token
+              },
+              body:JSON.stringify({
+                city: "",
+                bio: "",
+                cognitoId: cognitoId.sub
+              })
+            }
+          ).then(res => res.json());
+
         navigate(`/`);
-      else {
+      } else {
         setMessage(proceedLogin.error);
       }
     };

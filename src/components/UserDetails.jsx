@@ -2,9 +2,7 @@ import { useEffect, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext/AuthContext.js";
 
-
 import * as cognito from "../helpers/cognito.js";
-
 
 
 
@@ -48,15 +46,7 @@ function UserDetails() {
       console.log("updating::: ", tempUser, currentUser)
 
       const token = await cognito.getAccessToken();
-      console.log("tokennnnnn::: ", token);
-
-
-      // const currentUserId = cognito.getCurrentUser();
-      // console.log("currentUserId::: ", currentUserId)
-      // if (1) return;
-
-      // const url = `${import.meta.env.VITE_USER_profile_url}`;
-      // const url = `${import.meta.env.VITE_USER_profile_test_get}/toUpdateABC`;
+      
       const updateProfile = await fetch(
           url, 
           {
@@ -71,7 +61,7 @@ function UserDetails() {
             })
           }
         ).then(res => res.json());
-console.log("retuning rom Lambda::: ", updateProfile)
+        
       // set new message and currentuser
       // if fail, currentuser has be ba back to the same as tempuser
       setMessage(updateProfile.message 
@@ -80,13 +70,16 @@ console.log("retuning rom Lambda::: ", updateProfile)
     };
 
 
-    useEffect(() => {
-      // console.log("USERR:: ", loggedUser)
-      !loggedUser && navigate("/");
 
+
+    // first load
+    useEffect(() => {
+      !loggedUser && navigate("/");
+      
       // if user is logged, get user data from the server
       (async () => {
         const token = await cognito.getAccessToken();
+
         const getProfile = await fetch(
           url, 
           {
@@ -107,28 +100,28 @@ console.log("retuning rom Lambda::: ", updateProfile)
     }, []);
 
 
-    const test = async () => {
+    // const test = async () => {
 
-      const token = await cognito.getAccessToken();
-      console.log("tokennnnnn::: ", token);
-      const url = `${import.meta.env.VITE_USER_profile_url}`;
-      // const url = `${import.meta.env.VITE_USER_profile_test_get}/toUpdateABC`;
-      const getTest = await fetch(
-          url, 
-          {
-            // method: "PUT",
-            headers: {
-              "content-type": "application/json",
-              Authorization: token
-            },
-            // body:JSON.stringify({
-            //   data: "testttttdentist"
-            // })
-          }
-        ).then(res => res.json());
-      // const getTest = await fetch("https://fkoae4ltcc.execute-api.us-west-2.amazonaws.com/updateProfile", {method: "PUT"}).then(res => res.json());
-      console.log("tes:::", getTest);
-    }
+    //   const token = await cognito.getAccessToken();
+    //   console.log("tokennnnnn::: ", token);
+    //   const url = `${import.meta.env.VITE_USER_profile_url}`;
+    //   // const url = `${import.meta.env.VITE_USER_profile_test_get}/toUpdateABC`;
+    //   const getTest = await fetch(
+    //       url, 
+    //       {
+    //         // method: "PUT",
+    //         headers: {
+    //           "content-type": "application/json",
+    //           Authorization: token
+    //         },
+    //         // body:JSON.stringify({
+    //         //   data: "testttttdentist"
+    //         // })
+    //       }
+    //     ).then(res => res.json());
+    //   // const getTest = await fetch("https://fkoae4ltcc.execute-api.us-west-2.amazonaws.com/updateProfile", {method: "PUT"}).then(res => res.json());
+    //   console.log("tes:::", getTest);
+    // }
 
 
     return (
@@ -213,7 +206,7 @@ console.log("retuning rom Lambda::: ", updateProfile)
                   </button>                
               </div>
           }
-          <button onClick={test}>TEST</button>
+          {/* <button onClick={test}>TEST</button> */}
         </div>
       </div>
     );

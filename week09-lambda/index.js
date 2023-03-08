@@ -40,29 +40,26 @@ export const handler = async event => {
                 break;
             
             case "POST": {
-                // receive: body.newItem
-                // return: new list of items in DB
-
-                // it forwards to the corresponding function
+                // it forwards to the respective function, either profile or todo
                 if (rawPath.includes("profile")) {
-                    const {city, bio} = incomingBody;
-                    const user = await profileFunctions.updateProfile(userId, city, bio);
+                    const {city, bio, cognitoId} = incomingBody;
+                    const newProfile = await profileFunctions.addProfile(cognitoId, city, bio);
 
                     return {
-                        statusCode: 200,
+                        statusCode: 201,
                         body: JSON.stringify({
-                            message: user?.message,
-                            error: user?.error
+                            message: newProfile?.message,
+                            error: newProfile?.error
                         })
                     };
-                } else if (rawPath.includes("todoId")) {
+                } else if (rawPath.includes("todo")) {
 
                 } else {
                     // just in case scenario
                     return {
                         statusCode: 404,
                         body: JSON.stringify({
-                            error: "Route not okay!"
+                            error: "Request not okay!"
                         })
                     };
                 }
@@ -76,23 +73,23 @@ export const handler = async event => {
                     // it forwards to the corresponding function
                     if (rawPath.includes("profile")) {
                         const {city, bio} = incomingBody;
-                        const user = await profileFunctions.updateProfile(userId, city, bio);
+                        const profile = await profileFunctions.updateProfile(userId, city, bio);
 
                         return {
                             statusCode: 200,
                             body: JSON.stringify({
-                                message: user?.message,
-                                error: user?.error
+                                message: profile?.message,
+                                error: profile?.error
                             })
                         };
                     } else if (rawPath.includes("todoId")) {
-                        
+
                     } else {
                         // just in case scenario
                         return {
                             statusCode: 404,
                             body: JSON.stringify({
-                                error: "Route not okay!"
+                                error: "Request not okay!"
                             })
                         };
                     }
@@ -119,7 +116,7 @@ export const handler = async event => {
                     break;
                 }*/
                 default:
-                // Gateway API suppose to handle this before this point0
+                // Gateway API suppose to handle this before this point
                     // msg = "something wrong :(";
                     // break
             }

@@ -8,10 +8,8 @@
 import jwt_decode from "jwt-decode";
 
 const getUserData = token => {
-    // const token = window.localStorage.getItem("CognitoUserSession2.idToken.jwtToken");
-    console.log("tokennnnnn--- ", token);
     const decodedToken = jwt_decode(token);
-    console.log("decodeddddd --- ", decodedToken);
+    return decodedToken;
 };
 
 

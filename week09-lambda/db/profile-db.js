@@ -4,7 +4,6 @@ const { Pool } = pg;
 let pool;
 
 if (!pool) {
-    console.log("CREATING A BRAND NEW POOL CONNECTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     const connectionString = process.env.DATABASE_URL;
     pool = new Pool({
         connectionString,
@@ -28,12 +27,12 @@ export const getProfileById = async(id) => {
 };
 
 
-// export const addItem = async(item) => {
-//     const result = await pool.query('INSERT INTO items (item) VALUES (?)', [item]);
-//     const [rows] = await pool.query('SELECT * FROM items WHERE id = ?', [result[0].insertId]);
-//     const itemAdded = rows[0];
-//     return itemAdded;
-// };
+export const insertProfile = async(cognitoId, city, bio) => {
+    const result = await pool.query(
+        'INSERT INTO profiles (cognitoid, city, bio) VALUES ($1, $2, $3)', 
+        [cognitoId, city, bio]);
+    return result;
+};
 
 
 export async function updateProfile(id, city, bio) {
@@ -41,6 +40,6 @@ export async function updateProfile(id, city, bio) {
         `UPDATE profiles SET city = $1, bio = $2 WHERE cognitoid = $3;`,
         [city, bio, id]
     );
-console.log("updateProfile=====================XXXXXXXXXXX=================== ", updatedProfile);
     return updatedProfile;
 }
+

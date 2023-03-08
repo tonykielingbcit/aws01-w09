@@ -7,6 +7,23 @@ export const getProfileById = async userId => {
 };
 
 
+export const addProfile = async (userId, city, bio) => {
+    try {
+        // checking whether the profile is already on DB
+        // it should be done on the confirm stage, but for now it is being done on login
+        // kz need to know how to get sub before login
+        const checkProfile = await dbMethods.getProfileById(userId);
+        if (checkProfile.id) return ({ message: "user already on DB"});
+        
+        const newProfile = await dbMethods.insertProfile(userId, city, bio);
+        return ({ message: newProfile });
+    } catch(err) {
+        console.log("###ERROR on addProfile: ", err.messsage || err);
+        return ({ error: "Error on add Profile"});
+    }
+};
+
+
 export const updateProfile = async (userId, city, bio) => {
         try {
             // for test purpose
@@ -20,17 +37,3 @@ export const updateProfile = async (userId, city, bio) => {
         }
 };
 
-
-
-
-
-
-
-
-
-// export const getTodoItemById = async todoId => {
-//     console.log("XXXXXXXXXXXXXXXXXXXXXXX todoId:::::::::::: ", todoId)
-//         const todoItem = await dbMethods.getTodoItemById(todoId);
-//     console.log("user:::::::::::: ", todoItem)
-//         return todoItem
-// };

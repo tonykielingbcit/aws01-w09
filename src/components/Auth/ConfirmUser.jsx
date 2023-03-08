@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
+
 function ConfirmUser({ onConfirm }) {
+    const url = `${import.meta.env.VITE_USER_profile_url}`;
     const { usernameToConfirm } = useParams();
     const navigate = useNavigate();
   
@@ -13,7 +15,6 @@ function ConfirmUser({ onConfirm }) {
       event.preventDefault();
       
       const {username, code } = user;
-      // console.log("asd:::: ", username, code)
 
       if (!username || !code) {
         setMissing({...missing,
@@ -25,9 +26,30 @@ function ConfirmUser({ onConfirm }) {
 
       const confirm = await onConfirm({ username, code });
       
-      if (confirm.message)
+      if (confirm.message) {
+        //   // add new profile on DB
+        //   const token = await cognito.getAccessToken();
+        //   const cognitoId = helperLS.getUserData(token);
+        //   console.log("locastorage::: ", cognitoId.sub);
+        //   const newProfile = await fetch(
+        //     url, 
+        //     {
+        //       method: "POST",
+        //       headers: {
+        //         "content-type": "application/json",
+        //         Authorization: token
+        //       },
+        //       body:JSON.stringify({
+        //         city: "",
+        //         bio: "",
+        //         cognitoId: cognitoId.sub
+        //       })
+        //     }
+        //   ).then(res => res.json());
+        // console.log("adding profile::::::::: ", newProfile)
+  
         navigate(`/login/success/${confirm.username}/${confirm.message}`);
-      else {
+      } else {
         setMessage(confirm.error);
       }
     };
