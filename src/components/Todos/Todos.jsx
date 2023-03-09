@@ -114,6 +114,8 @@ function Todos() {
 
 
     const handleNewTask = async () => {
+      if (!newTask || newTask.trim() === "") return;
+
       const token = await cognito.getAccessToken();
       
       const addTodo = await fetch(
@@ -167,7 +169,6 @@ function Todos() {
         id: "",
         task: ""
       });
-      console.log("got delete!!")
       return;
     }
 
@@ -224,11 +225,11 @@ function Todos() {
           <table className="m-auto border-collapse border border-slate-600">
             <thead>
               <tr>
-                <th className="text-md font-bold border border-slate-400"> Id </th>
-                <th className="text-md font-bold border border-slate-400"> Task </th>
-                <th className="text-md px-2 font-bold border border-slate-400"> Create at </th>
+                <th className="text-md font-bold border border-slate-400 px-4"> Id </th>
+                <th className="text-md font-bold border border-slate-400 px-4"> Task </th>
+                <th className="text-md px-4 font-bold border border-slate-400"> Create at </th>
                 <th colSpan={3} className="text-md font-bold border border-slate-400 w-20"> Status </th>
-                <th colSpan={2} className="text-md px-2 font-bold border border-slate-400"> Action </th>
+                <th colSpan={2} className="text-md px-4 font-bold border border-slate-400"> Action </th>
               </tr>
             </thead>
             <tbody>
@@ -254,21 +255,21 @@ function Todos() {
 
                       <td className="text-center px-2 border border-slate-400"> { dateToDisplay  }</td>
                       <td 
-                        title= {!!initial && "Initial Stage"}
+                        title= {!!initial ? "Initial Stage" : ""}
                       >
                         <div 
                           className={`flex justify-center align-middle text-center px-1 w-6 ${!!initial ? "text-green-700 fas fa-battery-full border-none" : ""}`}
                         ></div>
                       </td>
                       <td 
-                        title= {!!inProgress && "In Progress"}
+                        title= {!!inProgress ? "In Progress" : ""}
                       >
                         <div 
                           className={`flex justify-center align-middle text-center px-1 w-6 ${!!inProgress ? "text-blue-700 fas fa-battery-half border-none" : ""}`}
                         ></div>
                       </td>
                       <td 
-                        title= {!!done && "Done!"}
+                        title= {!!done ? "Done!" : ""}
                       >
                         <div 
                           className={`flex justify-center align-middle text-center px-1 w-6 ${!!done ? "text-yellow-500 fas fa-battery-quarter border-none" : ""}`}

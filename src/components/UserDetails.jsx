@@ -87,8 +87,8 @@ function UserDetails() {
         ).then(res => res.json());
         
         setCurrentUser({
-          city: getProfile.message.city,
-          bio: getProfile.message.bio
+          city: getProfile.message?.city || "",
+          bio: getProfile.message?.bio || ""
         });
 
       })();

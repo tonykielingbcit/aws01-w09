@@ -13,7 +13,7 @@ export const addProfile = async (userId, city, bio) => {
         // it should be done on the confirm stage, but for now it is being done on login
         // kz need to know how to get sub before login
         const checkProfile = await dbMethods.getProfileById(userId);
-        if (checkProfile.id) return ({ message: "user already on DB"});
+        if (checkProfile?.id) return ({ message: "user already on DB"});
         
         const newProfile = await dbMethods.insertProfile(userId, city, bio);
         return ({ message: newProfile });

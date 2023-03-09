@@ -51,7 +51,7 @@ function Login({ onLogin }) {
           // kz need to know how to get sub before login
           const token = await cognito.getAccessToken();
           const cognitoId = helperLS.getUserData(token);
-          await fetch(
+          const tempp = await fetch(
             url, 
             {
               method: "POST",
@@ -66,7 +66,7 @@ function Login({ onLogin }) {
               })
             }
           ).then(res => res.json());
-
+console.log("tempp== ", tempp)
         navigate(`/`);
       } else {
         setMessage(proceedLogin.error);

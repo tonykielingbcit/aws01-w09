@@ -6,6 +6,12 @@ export const getAllTodosByProfileId = async profileId => {
     return todo;
 };
 
+/*
+export const getTodoById = async todoId => {
+    const todo = await todoDbMethods.getTodoById(todoId);
+    return todo;
+};
+*/
 
 export const addTodo = async (profileId, task) => {
     try {        
@@ -21,19 +27,19 @@ export const addTodo = async (profileId, task) => {
 
 
 export const updateTodo = async (id, task, initial, inProgress, done) => {
-    try {            
-        const uptTodo = await todoDbMethods.updateTodo(id, task, initial, inProgress, done);
+        try {            
+            const uptTodo = await todoDbMethods.updateTodo(id, task, initial, inProgress, done);
 
-        const success = uptTodo?.rowCount > 0 ? true : false;
-        
-        return ({ 
-            message: success && "Todo updated successfully! \\o/ " ,
-            error: !success && "Problem updating Todo.. :/"
-        });
-    } catch(err) {
-        console.log("###ERROR on updateTodo: ", err.messsage || err);
-        return ({ error: "Error on updating Todo. :/"});
-    }
+            const success = uptTodo?.rowCount > 0 ? true : false;
+            
+            return ({ 
+                message: success && "Todo updated successfully! \\o/ " ,
+                error: !success && "Problem updating Todo.. :/"
+            });
+        } catch(err) {
+            console.log("###ERROR on updateTodo: ", err.messsage || err);
+            return ({ error: "Error on updating Todo. :/"});
+        }
 };
 
 
@@ -43,7 +49,7 @@ export const removeTodo = async (taskId) => {
         
         return ({ message: rmTodo });
     } catch(err) {
-        console.log("###ERROR on removeTodo: ", err.messsage || err);
-        return ({ error: "Error on remove Todo"});
+        console.log("###ERROR on addTodo: ", err.messsage || err);
+        return ({ error: "Error on add Todo"});
     }
 };
