@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 week09-lambda/node_modules
+week09-lambda/.env
 
 node_modules
 dist
