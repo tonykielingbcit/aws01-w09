@@ -1,5 +1,6 @@
 import * as profileFunctions from "./functions/profile.js";
 import * as todoFunctions from "./functions/todo.js";
+import multer from "multer";
 
 export const handler = async event => {
     // console.log("EVENT::::::::::::::::::::::::::::::::::::", event)
@@ -78,6 +79,9 @@ export const handler = async event => {
                 
             }
                 case "PUT": {
+                    // const storage = multer.memoryStorage(); ////////
+                    // const upload = multer({ storage });
+
                     if (rawPath.includes("profile")) {
                         const {city, bio} = incomingBody;
                         const profile = await profileFunctions.updateProfile(userId, city, bio);
